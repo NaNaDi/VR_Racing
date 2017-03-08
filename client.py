@@ -1,0 +1,180 @@
+#!/usr/bin/python
+
+### import guacamole libraries
+import avango
+import avango.gua
+import avango.script
+
+### import application libraries
+from lib.SimpleViewingSetup import SimpleViewingSetup
+from lib.MultiUserViewingSetup import MultiUserViewingSetup
+
+
+### import python libraries
+import time
+import sys
+
+class Client:
+
+    def __init__(self,
+        SERVER_IP,
+        CLIENT_IP,
+        ):
+
+        print("CLIENT on", CLIENT_IP, "is connected to SERVER on", SERVER_IP)
+    
+        ### parameters ###
+        self.client_ip = CLIENT_IP
+    
+    
+        ### resources ###
+    
+        ## init scenegraph
+        self.scenegraph = avango.gua.nodes.SceneGraph(Name = "scenegraph")
+
+        ## init distribution 
+        self.nettrans = avango.gua.nodes.NetTransform(Name = "nettrans", Groupname = "AVCLIENT|{0}|7432".format(SERVER_IP))
+        self.scenegraph.Root.value.Children.value.append(self.nettrans)
+
+        if CLIENT_IP == "141.54.147.28": # artemis
+            self.viewingSetup = SimpleViewingSetup(
+                SCENEGRAPH = self.scenegraph,
+                STEREO_MODE = "mono",
+                WINDOW_RESOLUTION = avango.gua.Vec2ui(3840, 2160),
+                SCREEN_DIMENSIONS = avango.gua.Vec2(0.62, 0.345),
+                BLACK_LIST = [CLIENT_IP],
+                )
+
+        elif CLIENT_IP == "141.54.147.29": # atalante
+            self.viewingSetup = SimpleViewingSetup(
+                SCENEGRAPH = self.scenegraph,
+                STEREO_MODE = "mono",
+                BLACK_LIST = [CLIENT_IP],
+                )
+
+        elif CLIENT_IP == "141.54.147.37": # eris
+            ## MITSUBISHI 3D-TV setup
+            self.viewingSetup = SimpleViewingSetup(
+                SCENEGRAPH = self.scenegraph,
+                WINDOW_RESOLUTION = avango.gua.Vec2ui(1920, 1080),
+                SCREEN_DIMENSIONS = avango.gua.Vec2(1.44, 0.81),
+                #SCREEN_MATRIX = avango.gua.make_identity_mat(),
+                STEREO_MODE = "checkerboard",        
+                HEADTRACKING_SENSOR_STATION = "tracking-lcd-glasses-3",
+                TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(-1.01,-(0.98 + 0.58),3.5 + 0.48) * avango.gua.make_rot_mat(90.0,0,1,0),
+                BLACK_LIST = [CLIENT_IP],
+                )
+
+
+        elif CLIENT_IP == "141.54.147.30": # athena
+            ## LCD wall 1-User setup
+            self.viewingSetup = MultiUserViewingSetup(
+                SCENEGRAPH = self.scenegraph,
+                WINDOW_RESOLUTION = avango.gua.Vec2ui(1920, 1200),
+                SCREEN_DIMENSIONS = avango.gua.Vec2(3.0, 2.0),
+                LEFT_POSITION = avango.gua.Vec2ui(140, 0),
+                RIGHT_POSITION = avango.gua.Vec2ui(1920, 0),
+                LEFT_RESOLUTION = avango.gua.Vec2ui(1780, 1185),
+                RIGHT_RESOLUTION = avango.gua.Vec2ui(1780, 1185),
+                TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.0,-1.42,1.6),
+                DISPLAY_STRING_LIST = [":0.0"], # number of avaulable GPUs (users)
+                BLACK_LIST = [CLIENT_IP],
+                )
+            self.viewingSetup.init_user(HEADTRACKING_SENSOR_STATION = "tracking-lcd-glasses-1")
+                
+                
+        elif CLIENT_IP == "141.54.147.35": # Oculus1 workstation
+             ## SAMSUNG DESKTOP setup
+              self.viewingSetup = SimpleViewingSetup(
+                SCENEGRAPH = self.scenegraph,
+                STEREO_MODE = "mono",
+                #STEREO_MODE = "anaglyph",
+                WINDOW_RESOLUTION = avango.gua.Vec2ui(1920, 1080),
+                SCREEN_DIMENSIONS = avango.gua.Vec2(0.53, 0.3),
+                #HEADTRACKING_SENSOR_STATION = "tracking-lcd-prop-1",
+                #TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.54,-(0.98 + 0.64),3.5 + 0.48) * avango.gua.make_rot_mat(90.0,0,1,0),
+                BLACK_LIST = [CLIENT_IP],
+                )
+
+            ## OCULUS setup
+            #self.viewingSetup = OculusViewingSetup(
+            #    SCENEGRAPH = self.scenegraph,
+            #     )
+            
+        elif CLIENT_IP == "141.54.147.52": # Oculus2 workstation
+             ## SAMSUNG DESKTOP setup
+              self.viewingSetup = SimpleViewingSetup(
+                SCENEGRAPH = self.scenegraph,
+                STEREO_MODE = "mono",
+                #STEREO_MODE = "anaglyph",
+                WINDOW_RESOLUTION = avango.gua.Vec2ui(1920, 1080),
+                SCREEN_DIMENSIONS = avango.gua.Vec2(0.53, 0.3),
+                #HEADTRACKING_SENSOR_STATION = "tracking-lcd-prop-1",
+                #TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.54,-(0.98 + 0.64),3.5 + 0.48) * avango.gua.make_rot_mat(90.0,0,1,0),
+                BLACK_LIST = [CLIENT_IP],
+                )
+
+        else:
+            print("ERROR: no viewing setup defined for this IP")
+            quit()
+        
+        print_graph(self.nettrans)
+        
+
+        # Triggers framewise evaluation of respective callback method
+        self.init_trigger = avango.script.nodes.Update(Callback = self.init_callback, Active = True)
+        
+        while True:
+            self.viewingSetup.viewer.frame()
+        #self.viewingSetup.run(locals(), globals())
+
+    
+    ### callback functions ###
+    def init_callback(self):
+        print("frame", time.clock(), len(self.nettrans.Children.value))
+        
+        ## wait for distributed sceneraph to arrive
+        if len(self.nettrans.Children.value) > 0:
+            _client_group = self.nettrans.Children.value[0]
+        
+            if _client_group.Name.value == "client_group":
+                ## identify the corresponding navigation node for this client
+                for _node in _client_group.Children.value:
+                    if _node.Name.value.count(self.client_ip) > 0:
+                        self.viewingSetup.navigation_node.Transform.connect_from(_node.Transform)
+
+						#self.scenegraph.Root.value.Children.value.remove(self.dummy_geometry)
+
+                        break # break smallest enclosing loop
+                        
+            print_graph(self.nettrans)
+        
+            self.init_trigger.Active.value = False # disable init callback
+
+
+
+
+### helper functions ###
+
+## print the subgraph under a given node to the console
+def print_graph(root_node):
+    stack = [(root_node, 0)]
+    while stack:
+        node, level = stack.pop()
+        print("│   " * level + "├── {0} <{1}>".format(
+            node.Name.value, node.__class__.__name__))
+        stack.extend(
+            [(child, level + 1) for child in reversed(node.Children.value)])
+
+
+## print all fields of a fieldcontainer to the console
+def print_fields(node, print_values = False):
+    for i in range(node.get_num_fields()):
+        field = node.get_field(i)
+        print("→ {0} <{1}>".format(field._get_name(), field.__class__.__name__))
+        if print_values:
+            print("  with value '{0}'".format(field.value))
+
+
+if __name__ == '__main__':
+    Client(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.35")

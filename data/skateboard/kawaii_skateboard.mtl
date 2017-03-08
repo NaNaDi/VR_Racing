@@ -1,0 +1,148 @@
+# Blender MTL File: 'kawaii_skateboard.blend'
+# Material Count: 15
+
+newmtl JoinedMaterial_#8
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl m0
+Ns 47.058824
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/ApMiku_face.png
+map_d Cute_anime_girl/ApMiku_face.png
+
+newmtl m1
+Ns 47.058824
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/ApMiku_face.png
+map_d Cute_anime_girl/ApMiku_face.png
+
+newmtl m10
+Ns 47.058824
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/body02_MikuAp.tga
+map_d Cute_anime_girl/body02_MikuAp.tga
+
+newmtl m11
+Ns 47.058824
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/ApMiku_hair.png
+map_d Cute_anime_girl/ApMiku_hair.png
+
+newmtl m12
+Ns 47.058824
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/ApMiku_hair.png
+map_d Cute_anime_girl/ApMiku_hair.png
+
+newmtl m13
+Ns 1.960784
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/DressWYKP.png
+map_d Cute_anime_girl/DressWYKP.png
+
+newmtl m2
+Ns 47.058824
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/body02_MikuAp.tga
+map_d Cute_anime_girl/body02_MikuAp.tga
+
+newmtl m3
+Ns 47.058824
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/ApMiku_body.png
+map_d Cute_anime_girl/ApMiku_body.png
+
+newmtl m4
+Ns 1.960784
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ApMiku_clt_blk.png
+
+newmtl m5
+Ns 1.960784
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/mikup_bl.png
+
+newmtl m6
+Ns 1.960784
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/mikup_bl.png
+
+newmtl m7
+Ns 1.960784
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Cute_anime_girl/mikup_bl.png
+
+newmtl m8
+Ns 1.960784
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.080000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
