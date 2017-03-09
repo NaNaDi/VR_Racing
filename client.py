@@ -131,7 +131,7 @@ class Client:
     
     ### callback functions ###
     def init_callback(self):
-        print("frame", time.clock(), len(self.nettrans.Children.value))
+        #print("frame", time.clock(), len(self.nettrans.Children.value))
         
         ## wait for distributed sceneraph to arrive
         if len(self.nettrans.Children.value) > 0:
@@ -177,4 +177,4 @@ def print_fields(node, print_values = False):
 
 
 if __name__ == '__main__':
-    Client(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.35")
+    Client(SERVER_IP = "141.54.147.28", CLIENT_IP = "141.54.147.30")

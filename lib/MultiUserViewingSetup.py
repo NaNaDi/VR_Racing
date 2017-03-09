@@ -90,7 +90,7 @@ class User:
         #self.resolve_pass.BackgroundMode.value = avango.gua.BackgroundMode.COLOR
         #self.resolve_pass.BackgroundColor.value = avango.gua.Color(0.45, 0.5, 0.6)
         self.resolve_pass.BackgroundMode.value = avango.gua.BackgroundMode.SKYMAP_TEXTURE
-        self.resolve_pass.BackgroundTexture.value = "/opt/guacamole/resources/skymaps/DH216SN.png"
+        self.resolve_pass.BackgroundTexture.value = "data/textures/sky.png"
         #self.resolve_pass.BackgroundTexture.value = "/opt/guacamole/resources/skymaps/warehouse.jpg"
 
         self.pipeline_description = avango.gua.nodes.PipelineDescription(Passes = [])
