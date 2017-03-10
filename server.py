@@ -7,19 +7,19 @@ from avango.script import field_has_changed
 import avango.daemon
 
 from lib.scene import Scene
+from lib.Skateboard_Acceleration import Skateboard_Acceleration
 from lib.SimpleViewingSetup import SimpleViewingSetup
 from lib.MultiUserViewingSetup import MultiUserViewingSetup
 
 ### import python libraries
 import sys
 
-class Server:
+class Server(avango.script.Script):
 
-    def __init__(self,
-        SERVER_IP,
-        ):
+    def __init__(self):
+        self.super(Server).__init__()
 
-
+    def my_constructor(self, SERVER_IP):
         ## init scenegraph
         self.scenegraph = avango.gua.nodes.SceneGraph(Name = "scenegraph")
 
@@ -59,8 +59,12 @@ class Server:
 
         #self.box_trans.Transform.connect_from(self.leg_sensor.Matrix)
 
+        #skate_acceleration = Skateboard_Acceleration()
+
         self.skate_trans = self.scene.getSkateboard()
         self.skate_trans.Transform.connect_from(self.leg_sensor.Matrix)
+        #skate_acceleration.my_constructor(PARENT_NODE = self.nettrans, LEG_NODE = self.skate_trans)
+
 
         #self.skate_trans.Transform.value *= avango.gua.make_scale_mat(0.025)
 
@@ -80,9 +84,15 @@ class Server:
         distribute_all_nodes_below(NETTRANS = self.nettrans, NODE = self.nettrans)
 
         print_graph(self.scenegraph.Root.value)
+
+        self.always_evaluate(True)
         
         ## start application/render loop
         self.serverViewingSetup.run(locals(), globals())
+
+    def evaluate(self):
+        pass
+        #print(self.skate_trans.Transform.value)
 
 
 ## Registers a scenegraph node and all of its children at a NetMatrixTransform node for distribution.
@@ -120,4 +130,5 @@ def print_fields(node, print_values = False):
 
 
 if __name__ == '__main__':
-    server = Server(SERVER_IP = "141.54.147.28") # artemis
+    server = Server() 
+    server.my_constructor(SERVER_IP = "141.54.147.32") # boreas

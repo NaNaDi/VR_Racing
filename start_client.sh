@@ -30,5 +30,9 @@ then
     HOST=$2
 fi
 
+# run daemon
+python3 ./daemon.py > /dev/null &
+#python3 daemon.py
+
 # run program
 cd "$DIR" && python3.4 ./client.py $1 $HOST

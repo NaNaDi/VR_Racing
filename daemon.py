@@ -13,6 +13,7 @@ def init_lcd_wall_tracking():
   _dtrack = avango.daemon.DTrack()
   _dtrack.port = "5000" # ART port at LCD wall
   
+  _dtrack.stations[2] = avango.daemon.Station('tracking-lcd-glasses-athena') # athena tracking glasses
   _dtrack.stations[5] = avango.daemon.Station('tracking-lcd-glasses-1') # LCD wall glasses
   _dtrack.stations[8] = avango.daemon.Station('tracking-lcd-glasses-2') # SAMSUNG 3D-TV glasses
   _dtrack.stations[10] = avango.daemon.Station('tracking-lcd-glasses-3') # MITSUBISHI 3D-TV glasses

@@ -80,7 +80,7 @@ class Client:
                 DISPLAY_STRING_LIST = [":0.0"], # number of avaulable GPUs (users)
                 BLACK_LIST = [CLIENT_IP],
                 )
-            self.viewingSetup.init_user(HEADTRACKING_SENSOR_STATION = "tracking-lcd-glasses-1")
+            self.viewingSetup.init_user(HEADTRACKING_SENSOR_STATION = "tracking-lcd-glasses-athena")
                 
                 
         elif CLIENT_IP == "141.54.147.35": # Oculus1 workstation
@@ -143,7 +143,7 @@ class Client:
                     if _node.Name.value.count(self.client_ip) > 0:
                         self.viewingSetup.navigation_node.Transform.connect_from(_node.Transform)
 
-						#self.scenegraph.Root.value.Children.value.remove(self.dummy_geometry)
+                        #self.scenegraph.Root.value.Children.value.remove(self.dummy_geometry)
 
                         break # break smallest enclosing loop
                         
@@ -177,4 +177,4 @@ def print_fields(node, print_values = False):
 
 
 if __name__ == '__main__':
-    Client(SERVER_IP = "141.54.147.28", CLIENT_IP = "141.54.147.30")
+    Client(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30")

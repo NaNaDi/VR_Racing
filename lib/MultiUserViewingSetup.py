@@ -10,13 +10,16 @@ from lib.GuaVE import GuaVE
 
 
 
-class User:
+class User(avango.script.Script):
 
     ### class variables ###  
     number_of_instances = 0
     
+    def __init__(self):
+        self.super(User).__init__()
+
     ### constructor
-    def __init__(self,
+    def my_constructor(self,
         SCENEGRAPH = None,
         NAVIGATION_NODE = None,
         SCREEN_NODE = None,
@@ -157,6 +160,12 @@ class User:
 
 
         self.set_eye_distance(0.064)
+
+        self.always_evaluate(True)
+
+    def evaluate(self):
+        pass
+        #print(self.headtracking_sensor.Matrix.value)
         
 
 
@@ -260,7 +269,8 @@ class MultiUserViewingSetup:
 
         _display_string = self.display_string_list[len(self.user_list)]
 
-        _user = User(
+        _user = User()
+        _user.my_constructor(
             SCENEGRAPH = self.SCENEGRAPH,
             NAVIGATION_NODE = self.navigation_node,
             SCREEN_NODE = self.screen_node,

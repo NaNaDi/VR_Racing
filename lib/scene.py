@@ -42,7 +42,7 @@ class Scene:
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
         self.skate_parent = avango.gua.nodes.TransformNode(Name="skate_parent")
         self.skate_transform.Children.value.append(self.skateboard)
-        self.skate_parent.Transform.value = avango.gua.make_scale_mat(0.025)
+        self.skate_transform.Transform.value = avango.gua.make_scale_mat(0.025)
         self.skate_parent.Children.value.append(self.skate_transform)
         PARENT_NODE.Children.value.append(self.skate_parent)
 
@@ -63,4 +63,4 @@ class Scene:
             _node.Material.value.set_uniform("Color", avango.gua.Vec4(0.0,1.0,1.0,1.0))
 
     def getSkateboard(self):
-        return self.skate_transform
+        return self.skate_parent
