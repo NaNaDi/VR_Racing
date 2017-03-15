@@ -10,11 +10,14 @@ from lib.scene import Scene
 from lib.Skateboard_Acceleration import Skateboard_Acceleration
 from lib.SimpleViewingSetup import SimpleViewingSetup
 from lib.MultiUserViewingSetup import MultiUserViewingSetup
+from lib.Navigation import Navigation
 
 ### import python libraries
 import sys
 
 class Server(avango.script.Script):
+
+    trans_mat = avango.avango.gua.SFMatrix4()
 
     def __init__(self):
         self.super(Server).__init__()
@@ -23,6 +26,16 @@ class Server(avango.script.Script):
         ## init scenegraph
         self.scenegraph = avango.gua.nodes.SceneGraph(Name = "scenegraph")
 
+        self.movement = 0.0
+
+        self.old_rotation = avango.gua.Quat()
+        self.old_leg_pos = 0.0
+
+        self.navigation = Navigation()
+
+        self.navigation_node = avango.gua.nodes.TransformNode()
+
+        self.velocity = 0.0
 
         ## init server viewing setup
         self.serverViewingSetup = SimpleViewingSetup(
@@ -41,16 +54,18 @@ class Server(avango.script.Script):
         self.scenegraph.Root.value.Children.value.append(self.nettrans)
         
 
-        self.client_group = avango.gua.nodes.TransformNode(Name = "client_group")
-        self.nettrans.Children.value.append(self.client_group)
+        #self.client_group = avango.gua.nodes.TransformNode(Name = "client_group")
+        #self.nettrans.Children.value.append(self.client_group)
+
+        self.board_sensor = avango.daemon.nodes.DeviceSensor(DeviceService = avango.daemon.DeviceService())
+        self.board_sensor.Station.value = "tracking-lcd-prop-1"
+        #self.leg_sensor.TransmitterOffset.value = avango.gua.make_trans_mat(0.0,-1.42,1.6)
 
         self.leg_sensor = avango.daemon.nodes.DeviceSensor(DeviceService = avango.daemon.DeviceService())
         self.leg_sensor.Station.value = "tracking-lcd-prop-2"
-        self.leg_sensor.TransmitterOffset.value = avango.gua.make_trans_mat(0.0,-1.42,1.6)
 
         ## init scene
         self.scene = Scene(PARENT_NODE = self.nettrans)
-
         #_loader = avango.gua.nodes.TriMeshLoader()
         #self.box_trans = avango.gua.nodes.TransformNode()
         #self.box_geometry = _loader.create_geometry_from_file("box_geometry", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
@@ -61,8 +76,10 @@ class Server(avango.script.Script):
 
         #skate_acceleration = Skateboard_Acceleration()
 
+        #self.skate_trans = self.scene.getSkateboard()
+        #self.skate_trans = avango.gua.nodes.TransformNode()
         self.skate_trans = self.scene.getSkateboard()
-        self.skate_trans.Transform.connect_from(self.leg_sensor.Matrix)
+        self.trans_mat.connect_from(self.board_sensor.Matrix)
         #skate_acceleration.my_constructor(PARENT_NODE = self.nettrans, LEG_NODE = self.skate_trans)
 
 
@@ -70,15 +87,15 @@ class Server(avango.script.Script):
 
         ## init client setups
         
-        # first Client
-        #self.clientSetup0 = ClientSetup(
-        #    PARENT_NODE = self.client_group,
-        #    CLIENT_IP = "141.54.147.30", # athena
+        #first Client
+        #self.clientSetup0 = ClientSetup() #athena
+        #self.clientSetup0.my_constructor(PARENT_NODE = self.skate_trans,CLIENT_IP = "141.54.147.30", SCENEGRAPH = self.scenegraph)
         #    #CLIENT_IP = "141.54.147.35", # Oculus1 workstation
         #    #CLIENT_IP = "141.54.147.52", # Oculus2 workstation
         #    #CLIENT_IP = "141.54.147.28", # artemis
         #    #KINECT_FILENAME = "/opt/kinect-resources/calib_3dvc/surface_23_24_25_26_1.ks",
-        #    )
+
+        #self.clientSetup0.navigation_node.Transform.connect_from(self.skate_trans.Transform)
 
         # distribute complete scenegraph
         distribute_all_nodes_below(NETTRANS = self.nettrans, NODE = self.nettrans)
@@ -91,8 +108,30 @@ class Server(avango.script.Script):
         self.serverViewingSetup.run(locals(), globals())
 
     def evaluate(self):
-        pass
-        #print(self.skate_trans.Transform.value)
+        leg_pos = self.leg_sensor.Matrix.value.get_translate().z
+        if leg_pos<self.old_leg_pos:
+            self.old_leg_pos=leg_pos
+        if leg_pos<0.1 and leg_pos>-0.1 and self.old_leg_pos != 0.0 and self.old_leg_pos < -0.1:
+            #self.skate_trans.Transform.value += avango.gua.make_trans_mat(0,0,self.old_leg_pos)
+            self.velocity += self.old_leg_pos
+            #print("changed velocity############################################")
+            self.old_leg_pos=0.0
+        #print(self.velocity)
+        if self.velocity < 0.0:
+            self.skate_trans.Transform.value += avango.gua.make_rot_mat(self.old_rotation.w, 0, self.old_rotation.z, 0) * avango.gua.make_trans_mat(0,0,self.velocity)
+            #print("velocity smaller 0", self.velocity)
+            self.velocity += 0.00005
+        else:
+            self.velocity = 0.0
+
+    @field_has_changed(trans_mat)
+    def trans_mat_changed(self):
+        rot = self.trans_mat.value.get_rotate()
+        if rot != self.old_rotation:
+            self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(self.old_rotation))
+            self.skate_trans.Transform.value *= avango.gua.make_rot_mat(rot)
+            self.old_rotation = rot
+
 
 
 ## Registers a scenegraph node and all of its children at a NetMatrixTransform node for distribution.
@@ -131,4 +170,4 @@ def print_fields(node, print_values = False):
 
 if __name__ == '__main__':
     server = Server() 
-    server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
+    server.my_constructor(SERVER_IP = "141.54.147.45") # kronos

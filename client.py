@@ -8,6 +8,8 @@ import avango.script
 ### import application libraries
 from lib.SimpleViewingSetup import SimpleViewingSetup
 from lib.MultiUserViewingSetup import MultiUserViewingSetup
+from lib.ViewingSetup import StereoViewingSetup
+from lib.Navigation import Navigation
 
 
 ### import python libraries
@@ -35,6 +37,7 @@ class Client:
         ## init distribution 
         self.nettrans = avango.gua.nodes.NetTransform(Name = "nettrans", Groupname = "AVCLIENT|{0}|7432".format(SERVER_IP))
         self.scenegraph.Root.value.Children.value.append(self.nettrans)
+        self.navigation_node = avango.gua.nodes.TransformNode()
 
         if CLIENT_IP == "141.54.147.28": # artemis
             self.viewingSetup = SimpleViewingSetup(
@@ -55,7 +58,7 @@ class Client:
         elif CLIENT_IP == "141.54.147.37": # eris
             ## MITSUBISHI 3D-TV setup
             self.viewingSetup = SimpleViewingSetup(
-                SCENEGRAPH = self.scenegraph,
+                SCENEGRAPH = self.nettrans,
                 WINDOW_RESOLUTION = avango.gua.Vec2ui(1920, 1080),
                 SCREEN_DIMENSIONS = avango.gua.Vec2(1.44, 0.81),
                 #SCREEN_MATRIX = avango.gua.make_identity_mat(),
@@ -68,19 +71,22 @@ class Client:
 
         elif CLIENT_IP == "141.54.147.30": # athena
             ## LCD wall 1-User setup
-            self.viewingSetup = MultiUserViewingSetup(
+            self.viewingSetup = StereoViewingSetup(
                 SCENEGRAPH = self.scenegraph,
-                WINDOW_RESOLUTION = avango.gua.Vec2ui(1920, 1200),
+                WINDOW_RESOLUTION = avango.gua.Vec2ui(1920*2, 1200),
                 SCREEN_DIMENSIONS = avango.gua.Vec2(3.0, 2.0),
-                LEFT_POSITION = avango.gua.Vec2ui(140, 0),
-                RIGHT_POSITION = avango.gua.Vec2ui(1920, 0),
-                LEFT_RESOLUTION = avango.gua.Vec2ui(1780, 1185),
-                RIGHT_RESOLUTION = avango.gua.Vec2ui(1780, 1185),
+                LEFT_SCREEN_POSITION = avango.gua.Vec2ui(140, 0),
+                LEFT_SCREEN_RESOLUTION = avango.gua.Vec2ui(1780, 1185),
+                RIGHT_SCREEN_POSITION = avango.gua.Vec2ui(1920, 0),
+                RIGHT_SCREEN_RESOLUTION = avango.gua.Vec2ui(1780, 1185),
+                STEREO_FLAG = True,
+                STEREO_MODE = avango.gua.StereoMode.SIDE_BY_SIDE,
+                HEADTRACKING_FLAG = True,
+                HEADTRACKING_STATION = "tracking-lcd-glasses-athena", # wired 3D-TV glasses on Mitsubishi 3D-TV workstation
                 TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.0,-1.42,1.6),
-                DISPLAY_STRING_LIST = [":0.0"], # number of avaulable GPUs (users)
-                BLACK_LIST = [CLIENT_IP],
                 )
-            self.viewingSetup.init_user(HEADTRACKING_SENSOR_STATION = "tracking-lcd-glasses-athena")
+            self.navigation_node = self.viewingSetup.navigation_node
+            #self.viewingSetup.init_user(HEADTRACKING_SENSOR_STATION = "tracking-lcd-glasses-athena")
                 
                 
         elif CLIENT_IP == "141.54.147.35": # Oculus1 workstation
@@ -135,17 +141,17 @@ class Client:
         
         ## wait for distributed sceneraph to arrive
         if len(self.nettrans.Children.value) > 0:
-            _client_group = self.nettrans.Children.value[0]
-        
-            if _client_group.Name.value == "client_group":
-                ## identify the corresponding navigation node for this client
-                for _node in _client_group.Children.value:
-                    if _node.Name.value.count(self.client_ip) > 0:
-                        self.viewingSetup.navigation_node.Transform.connect_from(_node.Transform)
+            print("╯°□°）╯︵ ┻━┻")
 
-                        #self.scenegraph.Root.value.Children.value.remove(self.dummy_geometry)
+            for _child_node in self.nettrans.Children.value:
+                print(_child_node.Name.value)
 
-                        break # break smallest enclosing loop
+            _skate_trans = self.nettrans.Children.value[1]
+
+            print("#####connecting fields#####")
+            #_skate_trans.Transform.connect_from(self.navigation_node.Transform)
+            self.navigation_node.Transform.connect_from(_skate_trans.Transform)
+            print("#####fields connected#####")
                         
             print_graph(self.nettrans)
         
@@ -177,4 +183,4 @@ def print_fields(node, print_values = False):
 
 
 if __name__ == '__main__':
-    Client(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30")
+    Client(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.30")

@@ -21,6 +21,8 @@ def init_lcd_wall_tracking():
   _dtrack.stations[4] = avango.daemon.Station('tracking-lcd-prop-1') # LHT1
   _dtrack.stations[14] = avango.daemon.Station('tracking-lcd-prop-2') # LHT2
 
+  _dtrack.stations[16] = avango.daemon.Station('tracking-black-block') # black block
+
   device_list.append(_dtrack)
   print("ART Tracking started at LCD WALL")
 

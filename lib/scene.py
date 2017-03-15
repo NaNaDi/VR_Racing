@@ -37,12 +37,12 @@ class Scene:
         PARENT_NODE.Children.value.append(self.scene_light)
         loader = avango.gua.nodes.TriMeshLoader()
 
-        self.skate_transform = avango.gua.nodes.TransformNode(Name="skate_trans")
+        self.skate_transform = avango.gua.nodes.TransformNode(Name="skate_transform")
         self.skateboard = loader.create_geometry_from_file("kawaii_skateboard", "data/skateboard/kawaii_skateboard.obj", avango.gua.LoaderFlags.DEFAULTS)
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
         self.skate_parent = avango.gua.nodes.TransformNode(Name="skate_parent")
-        self.skate_transform.Children.value.append(self.skateboard)
-        self.skate_transform.Transform.value = avango.gua.make_scale_mat(0.025)
+        self.skate_transform.Children.value = [self.skateboard]
+        self.skate_transform.Transform.value = avango.gua.make_scale_mat(0.05)
         self.skate_parent.Children.value.append(self.skate_transform)
         PARENT_NODE.Children.value.append(self.skate_parent)
 
@@ -51,16 +51,20 @@ class Scene:
             _node.Material.value.EnableBackfaceCulling.value = False
             _node.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
 
-        self.bike_transform = avango.gua.nodes.TransformNode(Name = "bike_trans")
-        self.bike = loader.create_geometry_from_file("kawaii_bike", "data/bike/kawaii_bike.obj", avango.gua.LoaderFlags.DEFAULTS)
-        self.bike_transform.Children.value.append(self.bike)
-        self.bike_transform.Transform.value = avango.gua.make_scale_mat(0.025)
-        PARENT_NODE.Children.value.append(self.bike_transform)
+        #self.bike_transform = avango.gua.nodes.TransformNode(Name = "bike_trans")
+        #self.bike = loader.create_geometry_from_file("kawaii_bike", "data/bike/kawaii_bike.obj", avango.gua.LoaderFlags.DEFAULTS)
+        #self.bike_transform.Children.value.append(self.bike)
+        #self.bike_transform.Transform.value = avango.gua.make_scale_mat(0.025)
+        #PARENT_NODE.Children.value.append(self.bike_transform)
 
-        for _node in self.bike.Children.value:
-            _node.Material.value.set_uniform("Emissivity", 0.20) # 20% self-lighting
-            _node.Material.value.EnableBackfaceCulling.value = False
-            _node.Material.value.set_uniform("Color", avango.gua.Vec4(0.0,1.0,1.0,1.0))
+        #for _node in self.bike.Children.value:
+        #    _node.Material.value.set_uniform("Emissivity", 0.20) # 20% self-lighting
+        #    _node.Material.value.EnableBackfaceCulling.value = False
+        #    _node.Material.value.set_uniform("Color", avango.gua.Vec4(0.0,1.0,1.0,1.0))
+
+        self.landscape = loader.create_geometry_from_file("landscape", "data/Racetrack/Racetrack.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS)
+        self.landscape.Transform.value = avango.gua.make_trans_mat(-8.0,-19.30,15.0)
+        PARENT_NODE.Children.value.append(self.landscape)
 
     def getSkateboard(self):
         return self.skate_parent
