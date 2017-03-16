@@ -16,9 +16,12 @@ from lib.Navigation import Navigation
 import time
 import sys
 
-class Client:
+class Client(avango.script.Script):
 
-    def __init__(self,
+    def __init__(self):
+        self.super(Client).__init__()
+
+    def my_constructor(self,
         SERVER_IP,
         CLIENT_IP,
         ):
@@ -27,6 +30,8 @@ class Client:
     
         ### parameters ###
         self.client_ip = CLIENT_IP
+
+        self.old_trans = avango.gua.make_identity_mat()
     
     
         ### resources ###
@@ -130,6 +135,8 @@ class Client:
         # Triggers framewise evaluation of respective callback method
         self.init_trigger = avango.script.nodes.Update(Callback = self.init_callback, Active = True)
         
+        self.always_evaluate(True)
+
         while True:
             self.viewingSetup.viewer.frame()
         #self.viewingSetup.run(locals(), globals())
@@ -141,22 +148,28 @@ class Client:
         
         ## wait for distributed sceneraph to arrive
         if len(self.nettrans.Children.value) > 0:
-            print("╯°□°）╯︵ ┻━┻")
 
             for _child_node in self.nettrans.Children.value:
                 print(_child_node.Name.value)
 
             _skate_trans = self.nettrans.Children.value[1]
 
-            print("#####connecting fields#####")
             #_skate_trans.Transform.connect_from(self.navigation_node.Transform)
-            self.navigation_node.Transform.connect_from(_skate_trans.Transform)
-            print("#####fields connected#####")
+            self.navigation_node.WorldTransform.connect_from(_skate_trans.WorldTransform)
                         
             print_graph(self.nettrans)
         
             self.init_trigger.Active.value = False # disable init callback
 
+    def evaluate(self):
+        pass
+        #_nav_trans = self.navigation_node.Transform.value
+        #if _nav_trans != self.old_trans:
+            #print("_nav_trans: ",_nav_trans)
+            #print("old trans: ", self.old_trans)
+            #print("╯°□°）╯︵ ┻━┻")
+            #self.navigation_node.Transform.value *= avango.gua.make_trans_mat(0,0,-1)
+        #    self.old_trans = self.navigation_node.Transform.value
 
 
 
@@ -183,4 +196,5 @@ def print_fields(node, print_values = False):
 
 
 if __name__ == '__main__':
-    Client(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.30")
+    client = Client()
+    client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30")

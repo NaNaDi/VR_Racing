@@ -114,13 +114,10 @@ class Server(avango.script.Script):
         if leg_pos<0.1 and leg_pos>-0.1 and self.old_leg_pos != 0.0 and self.old_leg_pos < -0.1:
             #self.skate_trans.Transform.value += avango.gua.make_trans_mat(0,0,self.old_leg_pos)
             self.velocity += self.old_leg_pos
-            #print("changed velocity############################################")
             self.old_leg_pos=0.0
-        #print(self.velocity)
         if self.velocity < 0.0:
-            self.skate_trans.Transform.value += avango.gua.make_rot_mat(self.old_rotation.w, 0, self.old_rotation.z, 0) * avango.gua.make_trans_mat(0,0,self.velocity)
-            #print("velocity smaller 0", self.velocity)
-            self.velocity += 0.00005
+            self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.velocity)
+            self.velocity += 0.5
         else:
             self.velocity = 0.0
 
@@ -128,8 +125,8 @@ class Server(avango.script.Script):
     def trans_mat_changed(self):
         rot = self.trans_mat.value.get_rotate()
         if rot != self.old_rotation:
-            self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(self.old_rotation))
-            self.skate_trans.Transform.value *= avango.gua.make_rot_mat(rot)
+            #self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(self.old_rotation))
+            #self.skate_trans.Transform.value *= avango.gua.make_rot_mat(rot)
             self.old_rotation = rot
 
 
@@ -170,4 +167,4 @@ def print_fields(node, print_values = False):
 
 if __name__ == '__main__':
     server = Server() 
-    server.my_constructor(SERVER_IP = "141.54.147.45") # kronos
+    server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
