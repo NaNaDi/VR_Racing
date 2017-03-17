@@ -37,6 +37,8 @@ class Server(avango.script.Script):
 
         self.velocity = 0.0
 
+        #self.rotation_offset = avango.gua.make_rot_mat(90,0,1,0)
+
         ## init server viewing setup
         self.serverViewingSetup = SimpleViewingSetup(
             SCENEGRAPH = self.scenegraph,
@@ -116,18 +118,17 @@ class Server(avango.script.Script):
             self.velocity += self.old_leg_pos
             self.old_leg_pos=0.0
         if self.velocity < 0.0:
-            self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.velocity)
-            self.velocity += 0.5
+            self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.velocity*0.1)
+            self.velocity += 0.00005
         else:
             self.velocity = 0.0
 
     @field_has_changed(trans_mat)
     def trans_mat_changed(self):
-        rot = self.trans_mat.value.get_rotate()
-        if rot != self.old_rotation:
-            #self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(self.old_rotation))
-            #self.skate_trans.Transform.value *= avango.gua.make_rot_mat(rot)
-            self.old_rotation = rot
+        _rot = self.trans_mat.value.get_rotate()
+        self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(self.old_rotation))
+        self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.x*100, 1, 0, 0) * avango.gua.make_rot_mat(_rot.z*100*8, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z*100, 0, 0, 1)
+        self.old_rotation = self.skate_trans.Transform.value.get_rotate()
 
 
 
