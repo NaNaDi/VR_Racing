@@ -7,10 +7,10 @@ from avango.script import field_has_changed
 import avango.daemon
 
 from lib.scene import Scene
-from lib.Skateboard_Acceleration import Skateboard_Acceleration
 from lib.SimpleViewingSetup import SimpleViewingSetup
 from lib.MultiUserViewingSetup import MultiUserViewingSetup
-from lib.Navigation import Navigation
+from lib.Intersection import Intersection
+from lib.GroundFollowing import GroundFollowing
 
 ### import python libraries
 import sys
@@ -18,6 +18,7 @@ import sys
 class Server(avango.script.Script):
 
     trans_mat = avango.avango.gua.SFMatrix4()
+    ground_following_vertical_mat = avango.avango.gua.SFMatrix4()
 
     def __init__(self):
         self.super(Server).__init__()
@@ -26,12 +27,16 @@ class Server(avango.script.Script):
         ## init scenegraph
         self.scenegraph = avango.gua.nodes.SceneGraph(Name = "scenegraph")
 
+        physics = avango.gua.nodes.Physics()
+        physics_root = avango.gua.nodes.TransformNode(Name="physics_root")
+        self.scenegraph.Root.value.Children.value.append(physics_root)
+
         self.movement = 0.0
 
         self.old_rotation = avango.gua.Quat()
         self.old_leg_pos = 0.0
 
-        self.navigation = Navigation()
+        #self.navigation = Navigation()
 
         self.navigation_node = avango.gua.nodes.TransformNode()
 
@@ -45,7 +50,7 @@ class Server(avango.script.Script):
             WINDOW_RESOLUTION = avango.gua.Vec2ui(1200, 1200),
             SCREEN_DIMENSIONS = avango.gua.Vec2(10.0, 10.0),
             NAVIGATION_MATRIX = \
-                avango.gua.make_trans_mat(0.0,10.0,0.0) * \
+                avango.gua.make_trans_mat(0.0,30.0,0.0) * \
                 avango.gua.make_rot_mat(90.0,-1,0,0),
             PROJECTION_MODE = avango.gua.ProjectionMode.ORTHOGRAPHIC,
             )
@@ -82,6 +87,9 @@ class Server(avango.script.Script):
         #self.skate_trans = avango.gua.nodes.TransformNode()
         self.skate_trans = self.scene.getSkateboard()
         self.trans_mat.connect_from(self.board_sensor.Matrix)
+        self.groundFollowing = GroundFollowing()
+        self.groundFollowing.my_constructor(SCENEGRAPH = self.scenegraph, START_MATRIX = avango.gua.make_trans_mat(self.skate_trans.Transform.value.get_translate()))
+        self.ground_following_vertical_mat.connect_from(self.groundFollowing.sf_modified_mat)
         #skate_acceleration.my_constructor(PARENT_NODE = self.nettrans, LEG_NODE = self.skate_trans)
 
 
@@ -111,6 +119,8 @@ class Server(avango.script.Script):
 
     def evaluate(self):
         leg_pos = self.leg_sensor.Matrix.value.get_translate().z
+        #self.skate_trans.Transform.value *= self.ground_following_vertical_mat.value
+        #print(self.ground_following_vertical_mat.value)
         if leg_pos<self.old_leg_pos:
             self.old_leg_pos=leg_pos
         if leg_pos<0.1 and leg_pos>-0.1 and self.old_leg_pos != 0.0 and self.old_leg_pos < -0.1:
@@ -169,3 +179,5 @@ def print_fields(node, print_values = False):
 if __name__ == '__main__':
     server = Server() 
     server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
+
+

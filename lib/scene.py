@@ -42,7 +42,7 @@ class Scene:
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
         self.skate_parent = avango.gua.nodes.TransformNode(Name="skate_parent")
         self.skate_transform.Children.value = [self.skateboard]
-        self.skate_transform.Transform.value = avango.gua.make_scale_mat(0.05)
+        self.skate_transform.Transform.value = avango.gua.make_rot_mat(90,0,1,0) * avango.gua.make_scale_mat(0.05)
         self.skate_parent.Children.value.append(self.skate_transform)
         PARENT_NODE.Children.value.append(self.skate_parent)
 
@@ -62,9 +62,25 @@ class Scene:
         #    _node.Material.value.EnableBackfaceCulling.value = False
         #    _node.Material.value.set_uniform("Color", avango.gua.Vec4(0.0,1.0,1.0,1.0))
 
-        self.landscape = loader.create_geometry_from_file("landscape", "data/Racetrack/Racetrack.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS)
-        self.landscape.Transform.value = avango.gua.make_trans_mat(-8.0,-19.30,15.0)
+
+        ##todo: don't forget to uncomment the finish line
+        #self.finish_line = loader.create_geometry_from_file("kawaii_finish_line", "data/objects/cube.obj")
+        #self.finish_line.Material.value.set_uniform("kawaii_squares", "data/textures/chessboard.jpg")
+        #self.finish_line.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0.5))
+        #self.finish_line.Transform.value = avango.gua.make_trans_mat(0,0,-0.4) * avango.gua.make_rot_mat(90,0,1,0) * avango.gua.make_scale_mat(2,2,0.1)
+        #PARENT_NODE.Children.value.append(self.finish_line)
+
+        self.landscape = loader.create_geometry_from_file("kawaii_landscape", "data/Racetrack/Racetrack.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS | avango.gua.LoaderFlags.MAKE_PICKABLE)
+        self.landscape.Transform.value = avango.gua.make_trans_mat(-8.0,-20.30,22.0)
         PARENT_NODE.Children.value.append(self.landscape)
+
+        self.senpai = loader.create_geometry_from_file("kawaii_senpai", "data/Senpiiix3/Senpi.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.senpai.Transform.value = avango.gua.make_trans_mat(-2,-0.25,1.25) * avango.gua.make_rot_mat(85,0,1,0) *  avango.gua.make_scale_mat(0.25)
+        PARENT_NODE.Children.value.append(self.senpai)
+        ##todo: ask Tim about transformation
+        #self.collision_shape = loader.create_geometry_from_file("kawaii_collision_shape", "data/Racetrack/Collision_Shape.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS | avango.gua.LoaderFlags.MAKE_PICKABLE)
+        #self.landscape.Transform.value = avango.gua.make_trans_mat(-8.0,-30.30,22.0)
+        #PARENT_NODE.Children.value.append(self.collision_shape)
 
     def getSkateboard(self):
         return self.skate_parent
