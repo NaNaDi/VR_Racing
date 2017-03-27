@@ -9,7 +9,6 @@ import avango.script
 from lib.SimpleViewingSetup import SimpleViewingSetup
 from lib.MultiUserViewingSetup import MultiUserViewingSetup
 from lib.ViewingSetup import StereoViewingSetup
-from lib.Navigation import Navigation
 
 
 ### import python libraries

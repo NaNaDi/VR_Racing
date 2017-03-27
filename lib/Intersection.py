@@ -58,7 +58,6 @@ class Intersection(avango.script.Script):
   
         ## init field connections
         self.sf_pick_mat.connect_from(SF_MAT)
- 
     
 
     ### callback functions ###

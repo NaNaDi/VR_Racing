@@ -40,6 +40,7 @@ class GroundFollowing(avango.script.Script):
 
         self.lf_time = time.time()
 
+        #self.sf_mat.value = START_MATRIX
 
         ## init internal sub-classes
         self.gravity_intersection = Intersection()
@@ -58,7 +59,7 @@ class GroundFollowing(avango.script.Script):
     def evaluate(self): # evaluated once every frame if any input field has changed
     
         self.lf_time = time.time() # save absolute time of last frame (required for frame-rate independent mapping)
-        #print(len(self.mf_pick_result.value))
+        print(len(self.mf_pick_result.value))
         if len(self.mf_pick_result.value) > 0: # intersection found
             ## compute gravity response
             _pick_result = self.mf_pick_result.value[0] # get first intersection target from list

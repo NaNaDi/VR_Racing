@@ -88,6 +88,7 @@ class Server(avango.script.Script):
         self.skate_trans = self.scene.getSkateboard()
         self.trans_mat.connect_from(self.board_sensor.Matrix)
         self.groundFollowing = GroundFollowing()
+        #print(self.skate_trans.Transform.value.get_translate())
         self.groundFollowing.my_constructor(SCENEGRAPH = self.scenegraph, START_MATRIX = avango.gua.make_trans_mat(self.skate_trans.Transform.value.get_translate()))
         self.ground_following_vertical_mat.connect_from(self.groundFollowing.sf_modified_mat)
         #skate_acceleration.my_constructor(PARENT_NODE = self.nettrans, LEG_NODE = self.skate_trans)
@@ -119,6 +120,8 @@ class Server(avango.script.Script):
 
     def evaluate(self):
         leg_pos = self.leg_sensor.Matrix.value.get_translate().z
+        self.groundFollowing.sf_mat.value = avango.gua.make_trans_mat(self.skate_trans.Transform.value.get_translate())
+        ##todo: ground following
         #self.skate_trans.Transform.value *= self.ground_following_vertical_mat.value
         #print(self.ground_following_vertical_mat.value)
         if leg_pos<self.old_leg_pos:
@@ -139,6 +142,12 @@ class Server(avango.script.Script):
         self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(self.old_rotation))
         self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.x*100, 1, 0, 0) * avango.gua.make_rot_mat(_rot.z*100*8, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z*100, 0, 0, 1)
         self.old_rotation = self.skate_trans.Transform.value.get_rotate()
+
+    @field_has_changed(ground_following_vertical_mat)
+    def ground_following_vertical_mat_changed(self):
+        #pass
+        #self.skate_trans.Transform.value *= self.ground_following_vertical_mat.value
+        print(self.ground_following_vertical_mat.value)
 
 
 
