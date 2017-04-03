@@ -196,4 +196,5 @@ def print_fields(node, print_values = False):
 
 if __name__ == '__main__':
     client = Client()
-    client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30")
+    client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30") #boreas
+    #client.my_constructor(SERVER_IP = "141.54.147.49", CLIENT_IP = "141.54.147.30") #minos

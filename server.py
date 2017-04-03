@@ -14,6 +14,7 @@ from lib.GroundFollowing import GroundFollowing
 
 ### import python libraries
 import sys
+import math
 
 class Server(avango.script.Script):
 
@@ -120,7 +121,8 @@ class Server(avango.script.Script):
 
     def evaluate(self):
         leg_pos = self.leg_sensor.Matrix.value.get_translate().z
-        self.groundFollowing.sf_mat.value = avango.gua.make_trans_mat(self.skate_trans.Transform.value.get_translate())
+        #always keep updating skateboard position for ground following
+        self.groundFollowing.sf_mat.value = self.skate_trans.Transform.value
         ##todo: ground following
         #self.skate_trans.Transform.value *= self.ground_following_vertical_mat.value
         #print(self.ground_following_vertical_mat.value)
@@ -146,8 +148,12 @@ class Server(avango.script.Script):
     @field_has_changed(ground_following_vertical_mat)
     def ground_following_vertical_mat_changed(self):
         #pass
-        #self.skate_trans.Transform.value *= self.ground_following_vertical_mat.value
-        print(self.ground_following_vertical_mat.value)
+        _shift_y = self.ground_following_vertical_mat.value.get_translate().y
+        if not math.isnan(_shift_y) and _shift_y<10 and _shift_y >-10:
+            #print(self.skate_trans.Transform.value)
+            #pass
+            self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,_shift_y,0)
+            #print(_shift_y)
 
 
 
@@ -188,5 +194,6 @@ def print_fields(node, print_values = False):
 if __name__ == '__main__':
     server = Server() 
     server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
+    #server.my_constructor(SERVER_IP = "141.54.147.49") # minos
 
 
