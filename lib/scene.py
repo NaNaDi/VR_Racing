@@ -77,10 +77,12 @@ class Scene:
         self.senpai = loader.create_geometry_from_file("kawaii_senpai", "data/Senpiiix3/Senpi.obj", avango.gua.LoaderFlags.DEFAULTS)
         self.senpai.Transform.value = avango.gua.make_trans_mat(-2,-0.25,1.25) * avango.gua.make_rot_mat(85,0,1,0) *  avango.gua.make_scale_mat(0.25)
         PARENT_NODE.Children.value.append(self.senpai)
+        
         ##todo: ask Tim about transformation
-        #self.collision_shape = loader.create_geometry_from_file("kawaii_collision_shape", "data/Racetrack/Collision_Shape.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS | avango.gua.LoaderFlags.MAKE_PICKABLE)
-        #self.landscape.Transform.value = avango.gua.make_trans_mat(-8.0,-30.30,22.0)
-        #PARENT_NODE.Children.value.append(self.collision_shape)
+        self.collision_shape = loader.create_geometry_from_file("kawaii_collision_shape", "data/Racetrack/Collision_Shape.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS | avango.gua.LoaderFlags.MAKE_PICKABLE)
+        self.collision_shape.Transform.value = avango.gua.make_trans_mat(-8.0,-19.50,22.0)
+        self.collision_shape.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0.5))
+        PARENT_NODE.Children.value.append(self.collision_shape)
 
     def getSkateboard(self):
         return self.skate_parent

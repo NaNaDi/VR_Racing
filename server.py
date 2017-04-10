@@ -126,16 +126,20 @@ class Server(avango.script.Script):
         ##todo: ground following
         #self.skate_trans.Transform.value *= self.ground_following_vertical_mat.value
         #print(self.ground_following_vertical_mat.value)
-        if leg_pos<self.old_leg_pos:
-            self.old_leg_pos=leg_pos
-        if leg_pos<0.1 and leg_pos>-0.1 and self.old_leg_pos != 0.0 and self.old_leg_pos < -0.1:
-            #self.skate_trans.Transform.value += avango.gua.make_trans_mat(0,0,self.old_leg_pos)
-            self.velocity += self.old_leg_pos
-            self.old_leg_pos=0.0
-        if self.velocity < 0.0:
-            self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.velocity*0.1)
-            self.velocity += 0.00005
+        if self.groundFollowing.get_hit_wall() == False:
+            if leg_pos<self.old_leg_pos:
+                self.old_leg_pos=leg_pos
+            if leg_pos<0.1 and leg_pos>-0.1 and self.old_leg_pos != 0.0 and self.old_leg_pos < -0.1:
+                #self.skate_trans.Transform.value += avango.gua.make_trans_mat(0,0,self.old_leg_pos)
+                self.velocity += self.old_leg_pos
+                self.old_leg_pos=0.0
+            if self.velocity < 0.0:
+                self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.velocity*0.1)
+                self.velocity += 0.00005
+            else:
+                self.velocity = 0.0
         else:
+            self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,0.2)
             self.velocity = 0.0
 
     @field_has_changed(trans_mat)
@@ -153,7 +157,7 @@ class Server(avango.script.Script):
             #print(self.skate_trans.Transform.value)
             #pass
             self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,_shift_y,0)
-            #print(_shift_y)
+            print(_shift_y)
 
 
 
@@ -193,7 +197,7 @@ def print_fields(node, print_values = False):
 
 if __name__ == '__main__':
     server = Server() 
-    server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
-    #server.my_constructor(SERVER_IP = "141.54.147.49") # minos
+    #server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
+    server.my_constructor(SERVER_IP = "141.54.147.49") # minos
 
 
