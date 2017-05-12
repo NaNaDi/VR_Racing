@@ -147,7 +147,6 @@ class Client(avango.script.Script):
         
         ## wait for distributed sceneraph to arrive
         if len(self.nettrans.Children.value) > 0:
-
             for _child_node in self.nettrans.Children.value:
                 print(_child_node.Name.value)
 
@@ -196,5 +195,6 @@ def print_fields(node, print_values = False):
 
 if __name__ == '__main__':
     client = Client()
-    client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30") #boreas
-    #client.my_constructor(SERVER_IP = "141.54.147.49", CLIENT_IP = "141.54.147.30") #minos
+    #client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30") #boreas
+    client.my_constructor(SERVER_IP = "141.54.147.49", CLIENT_IP = "141.54.147.30") #minos
+    #client.my_constructor(SERVER_IP = "141.54.147.57", CLIENT_IP = "141.54.147.30") # orestes

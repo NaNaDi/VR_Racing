@@ -70,8 +70,8 @@ class GroundFollowing(avango.script.Script):
         ## init field connections
         self.mf_pick_result_down.connect_from(self.gravity_intersection_down.mf_pick_result)
         self.mf_pick_result_front.connect_from(self.gravity_intersection_front.mf_pick_result)
-        self.mf_pick_result_left.connect_from(self.gravity_intersection_left.mf_pick_result)
-        self.mf_pick_result_right.connect_from(self.gravity_intersection_right.mf_pick_result)
+        #self.mf_pick_result_left.connect_from(self.gravity_intersection_left.mf_pick_result)
+        #self.mf_pick_result_right.connect_from(self.gravity_intersection_right.mf_pick_result)
         #self.mf_pick_result_up.connect_from(self.gravity_intersection_up.mf_pick_result)
 
         ## set initial state  
@@ -89,22 +89,25 @@ class GroundFollowing(avango.script.Script):
             _pick_result_down = self.mf_pick_result_down.value[0] # get first intersection target from list
             _world_pos = _pick_result_down.WorldPosition.value
             _distance = (self.sf_mat.value.get_translate() - _world_pos).length()
-            _distance -= 0.1 # subtract half avatar height from distance
+            _distance -= 0.2 # subtract half avatar height from distance
             _distance -= self.fall_velocity
 
-            #print("down distance:",_distance)
+            print("down distance:",_distance)
 
-            if _distance > 0.01: # avatar above ground
-                print("hit ground")
-                self.fall_vec.y = self.fall_velocity * -1.0
-                self.sf_modified_mat.value = \
-                    avango.gua.make_trans_mat(self.fall_vec) * \
-                    self.sf_mat.value
+            if _distance > 0.01:
+                #_distance += 0.1 #add avatar height for hills
+                #if _distance < 0:
+                self.fall_vec.y = self.fall_velocity  * -1.0
 
             else: # avatar (almost) on ground
                 self.fall_vec.y = 0.0
+
+            self.sf_modified_mat.value = \
+                avango.gua.make_trans_mat(self.fall_vec) * \
+                self.sf_mat.value
         else: # no intersection found
-            self.sf_modified_mat.value = self.sf_mat.value # no changes needed
+            #self.sf_modified_mat.value = self.sf_mat.value # no changes needed
+            self.sf_modified_mat.value = avango.gua.make_trans_mat(0,0,0) # no changes needed
 
         if len(self.mf_pick_result_front.value) > 0:
             _pick_result_front = self.mf_pick_result_front.value[0]

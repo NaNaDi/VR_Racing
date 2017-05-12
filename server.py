@@ -134,8 +134,8 @@ class Server(avango.script.Script):
                 self.velocity += self.old_leg_pos
                 self.old_leg_pos=0.0
             if self.velocity < 0.0:
-                self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.velocity*0.1)
-                self.velocity += 0.00005
+                self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.velocity*0.3)
+                self.velocity += 0.0000005
             else:
                 self.velocity = 0.0
         else:
@@ -146,18 +146,18 @@ class Server(avango.script.Script):
     def trans_mat_changed(self):
         _rot = self.trans_mat.value.get_rotate()
         self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(self.old_rotation))
-        self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.x*100, 1, 0, 0) * avango.gua.make_rot_mat(_rot.z*100*8, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z*100, 0, 0, 1)
+        self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z*100*8, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z*100, 0, 0, 1)
         self.old_rotation = self.skate_trans.Transform.value.get_rotate()
 
     @field_has_changed(ground_following_vertical_mat)
     def ground_following_vertical_mat_changed(self):
         #pass
         _shift_y = self.ground_following_vertical_mat.value.get_translate().y
-        if not math.isnan(_shift_y) and _shift_y<10 and _shift_y >-10:
+        if not math.isnan(_shift_y) and _shift_y<1.0 and _shift_y >-1.0:
             #print(self.skate_trans.Transform.value)
             #pass
             self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,_shift_y,0)
-            print(_shift_y)
+            #print(_shift_y)
 
 
 
@@ -199,5 +199,6 @@ if __name__ == '__main__':
     server = Server() 
     #server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
     server.my_constructor(SERVER_IP = "141.54.147.49") # minos
+    #server.my_constructor(SERVER_IP = "141.54.147.57") #orestes
 
 
