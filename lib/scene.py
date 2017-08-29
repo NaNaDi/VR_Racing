@@ -99,3 +99,6 @@ class Scene:
 
     def getSkateboard(self):
         return self.skate_parent
+
+    def getScooter(self):
+        return self.scooter_parent
