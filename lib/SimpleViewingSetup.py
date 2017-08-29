@@ -132,6 +132,7 @@ class SimpleViewingSetup:
         self.head_node.Children.value = [self.camera_node]
 
 
+
         if STEREO_MODE == "anaglyph":
             self.camera_node.EnableStereo.value = True
             self.camera_node.RightScreenPath.value = self.screen_node.Path.value

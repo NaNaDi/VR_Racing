@@ -92,7 +92,7 @@ class GroundFollowing(avango.script.Script):
             _distance -= 0.2 # subtract half avatar height from distance
             _distance -= self.fall_velocity
 
-            print("down distance:",_distance)
+            #print("down distance:",_distance)
 
             if _distance > 0.01:
                 #_distance += 0.1 #add avatar height for hills

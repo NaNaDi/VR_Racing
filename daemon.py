@@ -38,6 +38,10 @@ def init_dlp_wall_tracking():
   _dtrack.stations[1] = avango.daemon.Station('tracking-dlp-glasses-3')
   _dtrack.stations[2] = avango.daemon.Station('tracking-dlp-glasses-4')
   _dtrack.stations[5] = avango.daemon.Station('tracking-dlp-glasses-6')
+  _dtrack.stations[31] = avango.daemon.Station('tracking-dlp-glasses-n_1')
+  _dtrack.stations[32] = avango.daemon.Station('tracking-dlp-glasses-2_1')
+  _dtrack.stations[33] = avango.daemon.Station('tracking-dlp-glasses-3_1')
+
 
   device_list.append(_dtrack)
   print("ART Tracking started at DLP WALL")

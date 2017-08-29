@@ -21,6 +21,12 @@ class StereoViewingSetup:
         LEFT_SCREEN_RESOLUTION = avango.gua.Vec2ui(1024, 1024), # in pixel
         RIGHT_SCREEN_POSITION = avango.gua.Vec2ui(0, 0), # in pixel
         RIGHT_SCREEN_RESOLUTION = avango.gua.Vec2ui(1024, 1024), # in pixel   
+        WARP_MATRIX_RED_RIGHT = None,
+        WARP_MATRIX_GREEN_RIGHT = None,
+        WARP_MATRIX_BLUE_RIGHT = None,
+        WARP_MATRIX_RED_LEFT = None,
+        WARP_MATRIX_GREEN_LEFT = None,
+        WARP_MATRIX_BLUE_LEFT = None,
         SCREEN_MATRIX = avango.gua.make_identity_mat(),
         STEREO_FLAG = False,
         STEREO_MODE = avango.gua.StereoMode.ANAGLYPH_RED_CYAN,
@@ -36,10 +42,36 @@ class StereoViewingSetup:
         ## init window
         self.window = avango.gua.nodes.Window(Title = "window")
         self.window.Size.value = WINDOW_RESOLUTION
-        self.window.LeftPosition.value = LEFT_SCREEN_POSITION
+
+        if LEFT_SCREEN_POSITION != None:
+            self.window.LeftPosition.value = LEFT_SCREEN_POSITION
+
         self.window.LeftResolution.value = LEFT_SCREEN_RESOLUTION
-        self.window.RightPosition.value = RIGHT_SCREEN_POSITION
+
+        if RIGHT_SCREEN_POSITION != None:
+            self.window.RightPosition.value = RIGHT_SCREEN_POSITION
+        
         self.window.RightResolution.value = RIGHT_SCREEN_RESOLUTION
+
+        if WARP_MATRIX_RED_RIGHT != None:
+            self.window.WarpMatrixRedRight.value = WARP_MATRIX_RED_RIGHT
+
+        if WARP_MATRIX_GREEN_RIGHT != None:
+            self.window.WarpMatrixGreenRight.value = WARP_MATRIX_GREEN_RIGHT
+
+        if WARP_MATRIX_BLUE_RIGHT != None:
+            self.window.WarpMatrixBlueRight.value = WARP_MATRIX_BLUE_RIGHT
+
+        if WARP_MATRIX_RED_LEFT != None:
+            self.window.WarpMatrixRedLeft.value = WARP_MATRIX_RED_LEFT
+
+        if WARP_MATRIX_GREEN_LEFT != None:
+            self.window.WarpMatrixGreenLeft.value = WARP_MATRIX_GREEN_LEFT
+
+        if WARP_MATRIX_BLUE_LEFT != None:
+            self.window.WarpMatrixBlueLeft.value = WARP_MATRIX_BLUE_LEFT
+
+
         self.window.EnableVsync.value = False
         
         avango.gua.register_window(self.window.Title.value, self.window) 
@@ -118,6 +150,39 @@ class StereoViewingSetup:
         self.camera_node.BlackList.value = ["invisible"]
         self.camera_node.PipelineDescription.value = self.pipeline_description
         self.head_node.Children.value = [self.camera_node]
+
+        ## pre-render camera setup for portal
+        
+       
+        self.portal_navigation_node = avango.gua.nodes.TransformNode(Name = "portal_navigation_node")
+        self.portal_navigation_node.Transform.value = avango.gua.make_trans_mat(0.0,0.5,0.0) * avango.gua.make_rot_mat(90.0,-1,0,0)
+        SCENEGRAPH.Root.value.Children.value.append(self.portal_navigation_node)
+        
+        ## init head node
+        self.portal_head_node = avango.gua.nodes.TransformNode(Name = "portal_head_node")
+        self.portal_head_node.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, 0.6) # default head position        
+        self.portal_navigation_node.Children.value.append(self.portal_head_node)
+
+
+        ## init screen node
+        self.portal_screen_node = avango.gua.nodes.ScreenNode(Name = "portal_screen_node")
+        self.portal_screen_node.Width.value = 3.0
+        self.portal_screen_node.Height.value = 2.0
+        self.portal_navigation_node.Children.value.append(self.portal_screen_node)
+
+        self.portal_camera_node = avango.gua.nodes.CameraNode(Name = "portal_camera_node")
+        self.portal_camera_node.SceneGraph.value = SCENEGRAPH.Name.value
+        self.portal_camera_node.LeftScreenPath.value = self.portal_screen_node.Path.value
+        self.portal_camera_node.RightScreenPath.value = self.portal_screen_node.Path.value
+        self.portal_camera_node.NearClip.value = 0.1 # in meter
+        self.portal_camera_node.FarClip.value = 100.0 # in meter
+        self.portal_camera_node.Resolution.value = avango.gua.Vec2ui(1920, 1200)
+        self.portal_camera_node.BlackList.value = ["invisible", "plane"]
+        self.portal_camera_node.PipelineDescription.value = self.pipeline_description
+        self.portal_camera_node.OutputTextureName.value = "portal_texture"
+        self.portal_head_node.Children.value = [self.portal_camera_node]
+        self.camera_node.PreRenderCameras.value.append(self.portal_camera_node)
+        self.portal_camera_node.Transform.value = avango.gua.make_trans_mat(0,3,0) * avango.gua.make_rot_mat(-90,1,0,0)
 
 
         if STEREO_FLAG == True:

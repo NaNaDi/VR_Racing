@@ -126,6 +126,11 @@ class Server(avango.script.Script):
         ##todo: ground following
         #self.skate_trans.Transform.value *= self.ground_following_vertical_mat.value
         #print(self.ground_following_vertical_mat.value)
+        if len(self.groundFollowing.mf_pick_result_front.value) > 0:
+            _intersection = self.groundFollowing.mf_pick_result_front.value[0].WorldPosition.value
+            _inter_diff = _intersection.z - self.skate_trans.WorldTransform.value.get_translate().z
+            if (_inter_diff - self.velocity) > 0:
+                print("kill me please")
         if self.groundFollowing.get_hit_wall() == False:
             if leg_pos<self.old_leg_pos:
                 self.old_leg_pos=leg_pos
@@ -145,8 +150,13 @@ class Server(avango.script.Script):
     @field_has_changed(trans_mat)
     def trans_mat_changed(self):
         _rot = self.trans_mat.value.get_rotate()
-        self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(self.old_rotation))
-        self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z*100*8, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z*100, 0, 0, 1)
+        _rot_y = self.old_rotation.y
+        _rot_z = self.old_rotation.z
+        #_rot_z = avango.gua.make_rot_mat(self.old_rotation.z, 0, 0, 1)
+        #self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(_rot_z)
+        #self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z, 0, 0, 1)
+        self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 0, 1))
+        self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z, 0, 0, 1)# * avango.gua.make_rot_mat(_rot_y, 0, 1, 0)
         self.old_rotation = self.skate_trans.Transform.value.get_rotate()
 
     @field_has_changed(ground_following_vertical_mat)
@@ -198,7 +208,8 @@ def print_fields(node, print_values = False):
 if __name__ == '__main__':
     server = Server() 
     #server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
-    server.my_constructor(SERVER_IP = "141.54.147.49") # minos
+    #server.my_constructor(SERVER_IP = "141.54.147.49") # minos
     #server.my_constructor(SERVER_IP = "141.54.147.57") #orestes
+    server.my_constructor(SERVER_IP = "141.54.147.45") #kronos
 
 

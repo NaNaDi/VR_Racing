@@ -91,7 +91,31 @@ class Client(avango.script.Script):
                 )
             self.navigation_node = self.viewingSetup.navigation_node
             #self.viewingSetup.init_user(HEADTRACKING_SENSOR_STATION = "tracking-lcd-glasses-athena")
-                
+
+        elif CLIENT_IP == "141.54.147.20": #kerberos
+            ## DLP wall 1-User setup
+            self.viewingSetup = StereoViewingSetup(
+                SCENEGRAPH = self.scenegraph,
+                WINDOW_RESOLUTION = avango.gua.Vec2ui(1920*2, 1200),
+                SCREEN_DIMENSIONS = avango.gua.Vec2(4.2, 2.61),
+                LEFT_SCREEN_POSITION = avango.gua.Vec2ui(0, 0),
+                LEFT_SCREEN_RESOLUTION = avango.gua.Vec2ui(1920, 1200),
+                RIGHT_SCREEN_POSITION = avango.gua.Vec2ui(1920, 0),
+                RIGHT_SCREEN_RESOLUTION = avango.gua.Vec2ui(1920, 1200),
+                WARP_MATRIX_RED_RIGHT = "/opt/dlp-warpmatrices/dlp_6_warp_P1.warp",
+                WARP_MATRIX_GREEN_RIGHT = "/opt/dlp-warpmatrices/dlp_6_warp_P2.warp",
+                WARP_MATRIX_BLUE_RIGHT = "/opt/dlp-warpmatrices/dlp_6_warp_P3.warp",
+                WARP_MATRIX_RED_LEFT = "/opt/dlp-warpmatrices/dlp_6_warp_P1.warp",
+                WARP_MATRIX_GREEN_LEFT = "/opt/dlp-warpmatrices/dlp_6_warp_P2.warp",
+                WARP_MATRIX_BLUE_LEFT = "/opt/dlp-warpmatrices/dlp_6_warp_P3.warp",
+                SCREEN_MATRIX = avango.gua.make_trans_mat(0.0, 1.55, -1.6),
+                STEREO_FLAG = True,
+                STEREO_MODE = avango.gua.StereoMode.SIDE_BY_SIDE,
+                HEADTRACKING_FLAG = True,
+                HEADTRACKING_STATION = "tracking-dlp-glasses-n_1",
+                #TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.0,-1.42,1.6),
+                )
+            self.navigation_node = self.viewingSetup.navigation_node             
                 
         elif CLIENT_IP == "141.54.147.35": # Oculus1 workstation
              ## SAMSUNG DESKTOP setup
@@ -196,5 +220,6 @@ def print_fields(node, print_values = False):
 if __name__ == '__main__':
     client = Client()
     #client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30") #boreas
-    client.my_constructor(SERVER_IP = "141.54.147.49", CLIENT_IP = "141.54.147.30") #minos
+    #client.my_constructor(SERVER_IP = "141.54.147.49", CLIENT_IP = "141.54.147.30") #minos
     #client.my_constructor(SERVER_IP = "141.54.147.57", CLIENT_IP = "141.54.147.30") # orestes
+    client.my_constructor(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.20") #kronos with dlp wall
