@@ -115,7 +115,7 @@ class Client(avango.script.Script):
                 STEREO_MODE = avango.gua.StereoMode.SIDE_BY_SIDE,
                 HEADTRACKING_FLAG = True,
                 HEADTRACKING_STATION = "tracking-dlp-glasses-n_1",
-                TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.0,-1.42,1.6),
+                TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.0,0.045,0.0),
                 )
             self.navigation_node = self.viewingSetup.navigation_node             
                 
@@ -176,10 +176,12 @@ class Client(avango.script.Script):
             for _child_node in self.nettrans.Children.value:
                 print(_child_node.Name.value)
 
-            _skate_trans = self.nettrans.Children.value[1]
+            ## uncomment for skateboard client
+            #_skate_trans = self.nettrans.Children.value[1]
+            #self.navigation_node.WorldTransform.connect_from(_skate_trans.WorldTransform)
 
-            #_skate_trans.Transform.connect_from(self.navigation_node.Transform)
-            self.navigation_node.WorldTransform.connect_from(_skate_trans.WorldTransform)
+            _scooter_trans = self.nettrans.Children.value[2]
+            self.navigation_node.WorldTransform.connect_from(_scooter_trans.WorldTransform)
                         
             print_graph(self.nettrans)
         
