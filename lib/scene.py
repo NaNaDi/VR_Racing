@@ -42,7 +42,7 @@ class Scene:
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
         self.skate_parent = avango.gua.nodes.TransformNode(Name="skate_parent")
         self.skate_transform.Children.value = [self.skateboard]
-        self.skate_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(-90.0,0,1,0)# * avango.gua.make_trans_mat(0,10,0)
+        self.skate_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(180.0,0,1,0)# * avango.gua.make_trans_mat(0,10,0)
         self.skate_parent.Children.value.append(self.skate_transform)
         PARENT_NODE.Children.value.append(self.skate_parent)
 
@@ -50,6 +50,20 @@ class Scene:
             _node.Material.value.set_uniform("Emissivity", 0.20) # 20% self-lighting
             _node.Material.value.EnableBackfaceCulling.value = False
             _node.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
+
+        self.scooter_transform = avango.gua.nodes.TransformNode(Name="scooter_transform")
+        self.scooter = loader.create_geometry_from_file("kawaii_scooter", "data/kawaii_scooter/scooter_super.obj", avango.gua.LoaderFlags.DEFAULTS)
+        #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
+        self.scooter_parent = avango.gua.nodes.TransformNode(Name="scooter_parent")
+        self.scooter_transform.Children.value = [self.scooter]
+        self.scooter_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_trans_mat(0,-35,10)
+        self.scooter_parent.Children.value.append(self.scooter_transform)
+        PARENT_NODE.Children.value.append(self.scooter_parent)
+
+        for _node in self.scooter.Children.value:
+            _node.Material.value.set_uniform("Emissivity", 0.20) # 20% self-lighting
+            _node.Material.value.EnableBackfaceCulling.value = False
+            _node.Material.value.set_uniform("Color", avango.gua.Vec4(0.0,0.206,0.209,1.0))
 
         #self.bike_transform = avango.gua.nodes.TransformNode(Name = "bike_trans")
         #self.bike = loader.create_geometry_from_file("kawaii_bike", "data/bike/kawaii_bike.obj", avango.gua.LoaderFlags.DEFAULTS)
