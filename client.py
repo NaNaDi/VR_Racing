@@ -114,7 +114,7 @@ class Client(avango.script.Script):
                 STEREO_FLAG = True,
                 STEREO_MODE = avango.gua.StereoMode.SIDE_BY_SIDE,
                 HEADTRACKING_FLAG = True,
-                HEADTRACKING_STATION = "tracking-dlp-glasses-n_1",
+                HEADTRACKING_STATION = "tracking-dlp-glasses-2_1",
                 TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.0,0.045,0.0),
                 )
             self.navigation_node = self.viewingSetup.navigation_node             
@@ -188,9 +188,10 @@ class Client(avango.script.Script):
             self.init_trigger.Active.value = False # disable init callback
 
     def evaluate(self):
-        if self.navigation_node.Transform.value != self.old_nav_trans:
-            self.navigation_node.Transform.value *= avango.gua.make_rot_mat(90.0, 0, 1, 0)
-            self.old_nav_trans = self.navigation_node.Transform.value
+        pass
+        #if self.navigation_node.Transform.value != self.old_nav_trans:
+        #    self.navigation_node.Transform.value *= avango.gua.make_rot_mat(90.0, 0, 1, 0)
+        #    self.old_nav_trans = self.navigation_node.Transform.value
         #if len(self.nettrans.Children.value) > 0:
         #    self.camera_trans = self.nettrans.Children.value[1].WorldTransform.value * avango.gua.make_rot_mat(-90.0, 0, 0, 1)  
         #_nav_trans = self.navigation_node.Transform.value
@@ -231,3 +232,4 @@ if __name__ == '__main__':
     #client.my_constructor(SERVER_IP = "141.54.147.49", CLIENT_IP = "141.54.147.30") #minos
     #client.my_constructor(SERVER_IP = "141.54.147.57", CLIENT_IP = "141.54.147.30") # orestes
     client.my_constructor(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.20") #kronos with dlp wall
+    #client.my_constructor(SERVER_IP = "141.54.147.28", CLIENT_IP = "141.54.147.20") #artemis with dlp wall

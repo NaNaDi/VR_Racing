@@ -19,7 +19,9 @@ import math
 class Server(avango.script.Script):
 
     trans_mat = avango.avango.gua.SFMatrix4()
+    scooter_trans_mat = avango.avango.gua.SFMatrix4()
     ground_following_vertical_mat = avango.avango.gua.SFMatrix4()
+    scooter_ground_following_vertical_mat = avango.avango.gua.SFMatrix4()
 
     def __init__(self):
         self.super(Server).__init__()
@@ -35,13 +37,16 @@ class Server(avango.script.Script):
         self.movement = 0.0
 
         self.old_rotation = avango.gua.Quat()
+        self.scooter_old_rotation = avango.gua.Quat()
         self.old_leg_pos = 0.0
+        self.scooter_old_leg_pos = 0.0
 
         #self.navigation = Navigation()
 
         self.navigation_node = avango.gua.nodes.TransformNode()
 
         self.velocity = 0.0
+        self.scooter_velocity = 0.0
 
         #self.rotation_offset = avango.gua.make_rot_mat(90,0,1,0)
 
@@ -72,6 +77,12 @@ class Server(avango.script.Script):
         self.leg_sensor = avango.daemon.nodes.DeviceSensor(DeviceService = avango.daemon.DeviceService())
         self.leg_sensor.Station.value = "tracking-lcd-prop-2"
 
+        self.scooter_sensor = avango.daemon.nodes.DeviceSensor(DeviceService = avango.daemon.DeviceService())
+        self.scooter_sensor.Station.value = "scooter_pointer"
+
+        self.scooter_leg_sensor = avango.daemon.nodes.DeviceSensor(DeviceService = avango.daemon.DeviceService())
+        self.scooter_leg_sensor.Station.value = "scooter_leg_pointer"
+
         ## init scene
         self.scene = Scene(PARENT_NODE = self.nettrans)
         #_loader = avango.gua.nodes.TriMeshLoader()
@@ -93,6 +104,14 @@ class Server(avango.script.Script):
         self.groundFollowing.my_constructor(SCENEGRAPH = self.scenegraph, START_MATRIX = avango.gua.make_trans_mat(self.skate_trans.Transform.value.get_translate()))
         self.ground_following_vertical_mat.connect_from(self.groundFollowing.sf_modified_mat)
         #skate_acceleration.my_constructor(PARENT_NODE = self.nettrans, LEG_NODE = self.skate_trans)
+
+        ## scooter ground following
+        self.scooter_trans = self.scene.getScooter()
+        self.scooter_trans_mat.connect_from(self.scooter_sensor.Matrix)
+        self.scooter_groundFollowing = GroundFollowing()
+        self.scooter_groundFollowing.my_constructor(SCENEGRAPH = self.scenegraph, START_MATRIX = avango.gua.make_trans_mat(self.scooter_trans.Transform.value.get_translate()))
+        self.scooter_ground_following_vertical_mat.connect_from(self.scooter_groundFollowing.sf_modified_mat)
+
 
 
         #self.skate_trans.Transform.value *= avango.gua.make_scale_mat(0.025)
@@ -121,8 +140,10 @@ class Server(avango.script.Script):
 
     def evaluate(self):
         leg_pos = self.leg_sensor.Matrix.value.get_translate().z
+        scooter_leg_pos = self.scooter_leg_sensor.Matrix.value.get_translate().z
         #always keep updating skateboard position for ground following
         self.groundFollowing.sf_mat.value = self.skate_trans.Transform.value
+        self.scooter_groundFollowing.sf_mat.value = self.scooter_trans.Transform.value
         ##todo: ground following
         #self.skate_trans.Transform.value *= self.ground_following_vertical_mat.value
         #print(self.ground_following_vertical_mat.value)
@@ -147,6 +168,34 @@ class Server(avango.script.Script):
             self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,0.2)
             self.velocity = 0.0
 
+        ## scooter navigation
+        if len(self.scooter_groundFollowing.mf_pick_result_front.value) > 0:
+            _intersection = self.scooter_groundFollowing.mf_pick_result_front.value[0].WorldPosition.value
+            _inter_diff = _intersection.z - self.scooter_trans.WorldTransform.value.get_translate().z
+            if (_inter_diff - self.velocity) > 0:
+                print("scooter_kill me please")
+        if self.scooter_groundFollowing.get_hit_wall() == False:
+            #print("scooter velocity; ", self.scooter_velocity)
+            #print("leg position:", scooter_leg_pos)
+            if scooter_leg_pos<self.scooter_old_leg_pos:
+                self.scooter_old_leg_pos=scooter_leg_pos
+            ## scooter_leg_pos < pointer_world_transform.z and scooter_leg_pos > - pointer_world_transform.z and self.scooter_old_leg__pos != 0.0
+            if scooter_leg_pos<0.1 and scooter_leg_pos>-0.1  and self.scooter_old_leg_pos != 0.0  and self.scooter_old_leg_pos < -0.1:
+                #self.skate_trans.Transform.value += avango.gua.make_trans_mat(0,0,self.old_leg_pos)
+                print("scooter, shoot me, please!")
+                self.scooter_velocity += self.scooter_old_leg_pos *-1
+                print("new scooter velocity: ", self.scooter_velocity)
+                self.scooter_old_leg_pos=0.0
+            if self.scooter_velocity > 0.0:
+                print(self.scooter_velocity)
+                self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.scooter_velocity*-0.3)
+                self.scooter_velocity -= 0.0000005
+            else:
+                self.scooter_velocity = 0.0
+        else:
+            self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,0.2)
+            self.scooter_velocity = 0.0
+
     @field_has_changed(trans_mat)
     def trans_mat_changed(self):
         _rot = self.trans_mat.value.get_rotate()
@@ -155,8 +204,8 @@ class Server(avango.script.Script):
         #_rot_z = avango.gua.make_rot_mat(self.old_rotation.z, 0, 0, 1)
         #self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(_rot_z)
         #self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z, 0, 0, 1)
-        self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 0, 1))
-        self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z, 0, 0, 1)# * avango.gua.make_rot_mat(_rot_y, 0, 1, 0)
+        self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 1, 0))
+        self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0)# * avango.gua.make_rot_mat(_rot.z, 0, 1, 0)# * avango.gua.make_rot_mat(_rot_y, 0, 1, 0)
         self.old_rotation = self.skate_trans.Transform.value.get_rotate()
 
     @field_has_changed(ground_following_vertical_mat)
@@ -167,6 +216,33 @@ class Server(avango.script.Script):
             #print(self.skate_trans.Transform.value)
             #pass
             self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,_shift_y,0)
+            #print(_shift_y)
+
+    ##same for scooter
+    @field_has_changed(scooter_trans_mat)
+    def scooter_trans_mat_changed(self):
+        _rot = self.scooter_trans_mat.value.get_rotate()
+        _rot_y = self.scooter_old_rotation.y
+        _rot_z = self.old_rotation.z
+        #_rot_z = avango.gua.make_rot_mat(self.old_rotation.z, 0, 0, 1)
+        #self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(_rot_z)
+        #self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z, 0, 0, 1)
+        #self.scooter_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 0, 1))
+        ##
+        #print("rotation: ", _rot.z)
+        if _rot.z > 0.1 or _rot.z < -0.1:
+            self.scooter_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 1, 0))
+            self.scooter_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0)# * avango.gua.make_rot_mat(_rot_y, 0, 1, 0)
+            self.scooter_old_rotation = self.scooter_trans.Transform.value.get_rotate()
+
+    @field_has_changed(scooter_ground_following_vertical_mat)
+    def scooter_ground_following_vertical_mat_changed(self):
+        #pass
+        _shift_y = self.scooter_ground_following_vertical_mat.value.get_translate().y
+        if not math.isnan(_shift_y) and _shift_y<1.0 and _shift_y >-1.0:
+            #print(self.skate_trans.Transform.value)
+            #pass
+            self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,_shift_y,0)
             #print(_shift_y)
 
 
@@ -211,5 +287,6 @@ if __name__ == '__main__':
     #server.my_constructor(SERVER_IP = "141.54.147.49") # minos
     #server.my_constructor(SERVER_IP = "141.54.147.57") #orestes
     server.my_constructor(SERVER_IP = "141.54.147.45") #kronos
+    #server.my_constructor(SERVER_IP = "141.54.147.28") #artemis
 
 
