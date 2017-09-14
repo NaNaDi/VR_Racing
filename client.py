@@ -114,7 +114,7 @@ class Client(avango.script.Script):
                 STEREO_FLAG = True,
                 STEREO_MODE = avango.gua.StereoMode.SIDE_BY_SIDE,
                 HEADTRACKING_FLAG = True,
-                HEADTRACKING_STATION = "tracking-dlp-glasses-2_1",
+                HEADTRACKING_STATION = "tracking-dlp-glasses-N_1",
                 TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.0,0.045,0.0),
                 )
             self.navigation_node = self.viewingSetup.navigation_node             
