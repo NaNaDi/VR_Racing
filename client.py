@@ -190,7 +190,7 @@ class Client(avango.script.Script):
     def evaluate(self):
         pass
         #if self.navigation_node.Transform.value != self.old_nav_trans:
-        #    self.navigation_node.Transform.value *= avango.gua.make_rot_mat(90.0, 0, 1, 0)
+        #    self.navigation_node.Transform.value *= avango.gua.make_trans_mat(0,0,15) #avango.gua.make_rot_mat(90.0, 0, 1, 0)
         #    self.old_nav_trans = self.navigation_node.Transform.value
         #if len(self.nettrans.Children.value) > 0:
         #    self.camera_trans = self.nettrans.Children.value[1].WorldTransform.value * avango.gua.make_rot_mat(-90.0, 0, 0, 1)  

@@ -78,11 +78,12 @@ class Scene:
 
 
         ##todo: don't forget to uncomment the finish line
-        #self.finish_line = loader.create_geometry_from_file("kawaii_finish_line", "data/objects/cube.obj")
+        self.finish_line = loader.create_geometry_from_file("kawaii_finish_line", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS)
+        self.finish_line.Transform.value = avango.gua.make_trans_mat(0,0,-0.4) * avango.gua.make_rot_mat(90,0,1,0) * avango.gua.make_scale_mat(2,2,0.01)
         #self.finish_line.Material.value.set_uniform("kawaii_squares", "data/textures/chessboard.jpg")
-        #self.finish_line.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0.5))
-        #self.finish_line.Transform.value = avango.gua.make_trans_mat(0,0,-0.4) * avango.gua.make_rot_mat(90,0,1,0) * avango.gua.make_scale_mat(2,2,0.1)
-        #PARENT_NODE.Children.value.append(self.finish_line)
+        self.finish_line.Material.value.set_uniform("ColorMap", "data/textures/chessboard.jpg")
+        self.finish_line.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0.5))
+        PARENT_NODE.Children.value.append(self.finish_line)
 
         self.landscape = loader.create_geometry_from_file("kawaii_landscape", "data/Racetrack/Racetrack.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS)
         self.landscape.Transform.value = avango.gua.make_trans_mat(-8.0,-22.25,22.0)
