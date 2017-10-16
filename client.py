@@ -17,6 +17,9 @@ import sys
 
 class Client(avango.script.Script):
 
+    nav_mat_adjust_input = avango.avango.gua.SFMatrix4()
+    nav_mat_adjust_output = avango.avango.gua.SFMatrix4()
+
     def __init__(self):
         self.super(Client).__init__()
 
@@ -114,7 +117,7 @@ class Client(avango.script.Script):
                 STEREO_FLAG = True,
                 STEREO_MODE = avango.gua.StereoMode.SIDE_BY_SIDE,
                 HEADTRACKING_FLAG = True,
-                HEADTRACKING_STATION = "tracking-dlp-glasses-N_1",
+                HEADTRACKING_STATION = "tracking-dlp-glasses-n_1",
                 TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.0,0.045,0.0),
                 )
             self.navigation_node = self.viewingSetup.navigation_node             
@@ -181,14 +184,14 @@ class Client(avango.script.Script):
             #self.navigation_node.WorldTransform.connect_from(_skate_trans.WorldTransform)
 
             _scooter_trans = self.nettrans.Children.value[2]
-            self.navigation_node.WorldTransform.connect_from(_scooter_trans.WorldTransform)
+            self.nav_mat_adjust_input.connect_from(_scooter_trans.WorldTransform)
                         
             print_graph(self.nettrans)
         
             self.init_trigger.Active.value = False # disable init callback
 
     def evaluate(self):
-        pass
+        self.navigation_node.Transform.value = self.nav_mat_adjust_input.value * avango.gua.make_rot_mat(90.0, 0, 1, 0) * avango.gua.make_trans_mat(0, 0.25, 1.5) * avango.gua.make_rot_mat(-45.0, 0.5, 0, 0)
         #if self.navigation_node.Transform.value != self.old_nav_trans:
         #    self.navigation_node.Transform.value *= avango.gua.make_trans_mat(0,0,15) #avango.gua.make_rot_mat(90.0, 0, 1, 0)
         #    self.old_nav_trans = self.navigation_node.Transform.value
@@ -231,5 +234,6 @@ if __name__ == '__main__':
     #client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30") #boreas
     #client.my_constructor(SERVER_IP = "141.54.147.49", CLIENT_IP = "141.54.147.30") #minos
     #client.my_constructor(SERVER_IP = "141.54.147.57", CLIENT_IP = "141.54.147.30") # orestes
-    client.my_constructor(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.20") #kronos with dlp wall
+    #client.my_constructor(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.20") #kronos with dlp wall
     #client.my_constructor(SERVER_IP = "141.54.147.28", CLIENT_IP = "141.54.147.20") #artemis with dlp wall
+    client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.20") #boreas with dlp wall
