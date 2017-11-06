@@ -191,7 +191,7 @@ class Client(avango.script.Script):
             self.init_trigger.Active.value = False # disable init callback
 
     def evaluate(self):
-        self.navigation_node.Transform.value = self.nav_mat_adjust_input.value * avango.gua.make_rot_mat(90.0, 0, 1, 0) * avango.gua.make_trans_mat(0, 0.25, 1.5) * avango.gua.make_rot_mat(-45.0, 0.5, 0, 0)
+        self.navigation_node.Transform.value = self.nav_mat_adjust_input.value * avango.gua.make_rot_mat(45.0, 0, 1, 0) * avango.gua.make_trans_mat(0, 0.25, 1.5) * avango.gua.make_rot_mat(-45.0, 0.5, 0, 0)
         #if self.navigation_node.Transform.value != self.old_nav_trans:
         #    self.navigation_node.Transform.value *= avango.gua.make_trans_mat(0,0,15) #avango.gua.make_rot_mat(90.0, 0, 1, 0)
         #    self.old_nav_trans = self.navigation_node.Transform.value
@@ -234,6 +234,6 @@ if __name__ == '__main__':
     #client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30") #boreas
     #client.my_constructor(SERVER_IP = "141.54.147.49", CLIENT_IP = "141.54.147.30") #minos
     #client.my_constructor(SERVER_IP = "141.54.147.57", CLIENT_IP = "141.54.147.30") # orestes
-    #client.my_constructor(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.20") #kronos with dlp wall
+    client.my_constructor(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.20") #kronos with dlp wall
     #client.my_constructor(SERVER_IP = "141.54.147.28", CLIENT_IP = "141.54.147.20") #artemis with dlp wall
-    client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.20") #boreas with dlp wall
+    #client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.20") #boreas with dlp wall

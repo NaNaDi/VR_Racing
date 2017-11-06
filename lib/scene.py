@@ -56,7 +56,7 @@ class Scene:
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
         self.scooter_parent = avango.gua.nodes.TransformNode(Name="scooter_parent")
         self.scooter_transform.Children.value = [self.scooter]
-        self.scooter_transform.Transform.value = avango.gua.make_scale_mat(0.05)# * avango.gua.make_trans_mat(-10,-35,-20)
+        self.scooter_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(-90, 0, 1, 0) # * avango.gua.make_trans_mat(-10,-35,-20)
         self.scooter_parent.Children.value.append(self.scooter_transform)
         PARENT_NODE.Children.value.append(self.scooter_parent)
 
