@@ -173,25 +173,16 @@ class Server(avango.script.Script):
         if len(self.scooter_groundFollowing.mf_pick_result_front.value) > 0:
             _intersection = self.scooter_groundFollowing.mf_pick_result_front.value[0].WorldPosition.value
             _inter_diff = _intersection.z - self.scooter_trans.WorldTransform.value.get_translate().z
-            #print("scooter intersection: ", _inter_diff)
-            if (_inter_diff - self.velocity) > 0:
-                #print("scooter_kill me please")
-                self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,_inter_diff)
+            if (_inter_diff - self.velocity) < 0 and self.velocity > 0:
+                self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,_inter_diff-1)
                 self.scooter_velocity = 0.0
         if self.scooter_groundFollowing.get_hit_wall() == False:
-            #print("scooter velocity; ", self.scooter_velocity)
-            #print("leg position:", scooter_leg_pos)
             if scooter_leg_pos<self.scooter_old_leg_pos:
                 self.scooter_old_leg_pos=scooter_leg_pos
-            ## scooter_leg_pos < pointer_world_transform.z and scooter_leg_pos > - pointer_world_transform.z and self.scooter_old_leg__pos != 0.0
             if scooter_leg_pos<0.1 and scooter_leg_pos>-0.1  and self.scooter_old_leg_pos != 0.0  and self.scooter_old_leg_pos < -0.1:
-                #self.skate_trans.Transform.value += avango.gua.make_trans_mat(0,0,self.old_leg_pos)
-                #print("scooter, shoot me, please!")
                 self.scooter_velocity += self.scooter_old_leg_pos *-1
-                #print("new scooter velocity: ", self.scooter_velocity)
                 self.scooter_old_leg_pos=0.0
             if self.scooter_velocity > 0.0:
-                #print(self.scooter_velocity)
                 self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.scooter_velocity*-0.3)
                 self.scooter_velocity -= 0.0000005
             else:
