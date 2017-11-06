@@ -227,17 +227,42 @@ class Server(avango.script.Script):
     def scooter_trans_mat_changed(self):
         _rot = self.scooter_trans_mat.value.get_rotate()
         _rot_y = self.scooter_old_rotation.y
-        _rot_z = self.old_rotation.z
-        #_rot_z = avango.gua.make_rot_mat(self.old_rotation.z, 0, 0, 1)
-        #self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(_rot_z)
-        #self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0) * avango.gua.make_rot_mat(_rot.z, 0, 0, 1)
-        #self.scooter_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 0, 1))
+        _rot_z = self.scooter_old_rotation.z
+
+        #print(_rot.z)
+
+        #_result = avango.gua.make_rot_mat(self.old_rotation.z, 0, 0, 1)
+        #self.scooter_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 1, 0))
+        self.scooter_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0)# * avango.gua.make_rot_mat(_rot.z, 0, 0, 1)
+        #self.scooter_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_result.Matrix.value.z, 0, 0, 1))
         ##
+
         #print("rotation: ", _rot.z)
-        if _rot.z > 0.1 or _rot.z < -0.1:
-            self.scooter_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 1, 0))
-            self.scooter_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0)# * avango.gua.make_rot_mat(_rot_y, 0, 1, 0)
-            self.scooter_old_rotation = self.scooter_trans.Transform.value.get_rotate()
+        #if _rot.z > 0.1 or _rot.z < -0.1:
+        #    self.scooter_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 1, 0))
+        #    self.scooter_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0)# * avango.gua.make_rot_mat(_rot_y, 0, 1, 0)
+        #    self.scooter_old_rotation = self.scooter_trans.Transform.value.get_rotate()
+
+        ##better rotation according to Tim
+        #_sensor_trans = self.scooter_trans_mat.value.get_translate()
+        #_sensor_shifted_trans = _sensor_trans * avango.gua.Vec3(0,1,0)
+        #_trans_vector = _sensor_trans - _sensor_shifted_trans
+        #print("c: ", 1-_trans_vector.y)
+        #print("trans: ", _trans_vector.y)
+        ##_result = math.acos(_sensor_trans.x * _trans_vector.x + _sensor_trans.z * _trans_vector.z)
+        #_result = math.acos((2 - math.pow(1-_trans_vector.y,2)) / (2))
+        
+        # I have no idea what I'm doing here
+        #print("_trans_vector.x: ",  math.acos((2 - math.pow(_trans_vector.x,2)) / (2)))
+        #print("_trans_vector.y: ",  math.acos((2 - math.pow(_trans_vector.y,2)) / (2)))
+        #print("_trans_vector.z: ",  math.acos((2 - math.pow(_trans_vector.z,2)) / (2)))
+
+        #print("resulting angle: ", _result)
+
+        ## put the whole shit on the rotation, yeah!
+        #self.scooter_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 1, 0))
+        #self.scooter_trans.Transform.value *= avango.gua.make_rot_mat(_result, 0, 1, 0)
+        self.scooter_old_rotation = self.scooter_trans.Transform.value.get_rotate()
 
     @field_has_changed(scooter_ground_following_vertical_mat)
     def scooter_ground_following_vertical_mat_changed(self):

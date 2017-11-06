@@ -56,7 +56,7 @@ class Scene:
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
         self.scooter_parent = avango.gua.nodes.TransformNode(Name="scooter_parent")
         self.scooter_transform.Children.value = [self.scooter]
-        self.scooter_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_trans_mat(-10,-35,-20)
+        self.scooter_transform.Transform.value = avango.gua.make_scale_mat(0.05)# * avango.gua.make_trans_mat(-10,-35,-20)
         self.scooter_parent.Children.value.append(self.scooter_transform)
         PARENT_NODE.Children.value.append(self.scooter_parent)
 
@@ -78,7 +78,7 @@ class Scene:
 
 
         ##todo: don't forget to uncomment the finish line
-        self.finish_line = loader.create_geometry_from_file("kawaii_finish_line", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS)
+        self.finish_line = loader.create_geometry_from_file("kawaii_finish_line", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
         self.finish_line.Transform.value = avango.gua.make_trans_mat(0,0,-0.4) * avango.gua.make_rot_mat(90,0,1,0) * avango.gua.make_scale_mat(2,2,0.01)
         #self.finish_line.Material.value.set_uniform("kawaii_squares", "data/textures/chessboard.jpg")
         self.finish_line.Material.value.set_uniform("ColorMap", "data/textures/chessboard.jpg")
@@ -97,6 +97,11 @@ class Scene:
         self.collision_shape.Transform.value = avango.gua.make_trans_mat(-8.0,-21.45,22.0)
         self.collision_shape.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0.5))
         PARENT_NODE.Children.value.append(self.collision_shape)
+
+        #self.countdown_box_scooter = loader.create_geometry_from_file("countdown_scooter", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        #self.countdown_box_scooter.Transform.value = avango.gua.make_trans_mat(0,30,25) * avango.gua.make_scale_mat(30) * avango.gua.make_rot_mat(-45.0, 0.5, 0, 0)
+        #self.countdown_box_scooter.Material.value.set_uniform("ColorMap", "data/textures/DH216SN.png")
+        #self.scooter_transform.Children.value.append(self.countdown_box_scooter)
 
     def getSkateboard(self):
         return self.skate_parent
