@@ -174,36 +174,66 @@ class Server(avango.script.Script):
             _intersection = self.scooter_groundFollowing.mf_pick_result_front.value[0].WorldPosition.value ## get the pick result to the front
             _scooter_world_x = self.scooter_trans.Transform.value.get_translate().x
             _scooter_world_z = self.scooter_trans.Transform.value.get_translate().z
-            _inter_diff = math.sqrt(math.pow((_scooter_world_x - _intersection.x), 2) + math.pow((_scooter_world_z - _intersection.z), 2))
-            #_inter_diff = _intersection.z - self.scooter_trans.Transform.value.get_translate().z 
+            _inter_diff = math.sqrt(math.pow((_scooter_world_x - _intersection.x), 2) + math.pow((_scooter_world_z - _intersection.z), 2)) * 0.75
+            #print("inter_diff: ", _inter_diff)
+            #_inter_diff = _intersection.z - self.scooter_trans.Transform.value.get_translate().z
+            #_inter_diff = self.scooter_groundFollowing.get_distance()
+            print("inter_diff", _inter_diff)
+            print("velocity", self.velocity)
             if (_inter_diff - self.velocity) <= 0 and self.velocity > 0:
-                self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,_inter_diff-1)
+                print("velocity is greater than inter_diff")
+                self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,_inter_diff * -1)
                 self.scooter_velocity = 0.0
             if self.scooter_groundFollowing.get_hit_wall() == False:
-                if scooter_leg_pos<self.scooter_old_leg_pos:
-                    self.scooter_old_leg_pos=scooter_leg_pos
-                if scooter_leg_pos<0.1 and scooter_leg_pos>-0.1  and self.scooter_old_leg_pos != 0.0  and self.scooter_old_leg_pos < -0.1:
-                    self.scooter_velocity += self.scooter_old_leg_pos *-0.5
-                    self.scooter_old_leg_pos=0.0
-                if self.scooter_velocity > 0.0:
-                    self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.scooter_velocity*-0.3)
-                    self.scooter_velocity -= 0.000005
+                print("no wall hit")
+                if _inter_diff <= 15 or _inter_diff >= -15:
+                    print("inter diff below threshold") 
+                    #self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0, -_inter_diff * 1.25)
+                    if scooter_leg_pos<self.scooter_old_leg_pos:
+                        self.scooter_old_leg_pos=scooter_leg_pos
+                    if scooter_leg_pos<0.1 and scooter_leg_pos>-0.1  and self.scooter_old_leg_pos != 0.0  and self.scooter_old_leg_pos < -0.1:
+                        self.scooter_velocity += self.scooter_old_leg_pos *-0.5
+                        self.scooter_old_leg_pos=0.0
+                    if self.scooter_velocity > 0.0:
+                        self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.scooter_velocity*-0.3)
+                        self.scooter_velocity -= 0.000005
+                    else:
+                        self.scooter_velocity = 0.0
                 else:
-                    self.scooter_velocity = 0.0
+                    print("inter diff above threshold")
+                    self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,0.75)
             else:
                 ##wall hit
+                print("oh no, we hit the wall")
                 self.scooter_trans.Transform.value *= avango.gua.make_rot_mat(180, 0, 1, 0)
-                if self.scooter_groundFollowing.get_hit_wall() == False:
-                    self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0, -0.75)
-                else:
+
+                #print("backwards intersection")
+                if len(self.scooter_groundFollowing.mf_pick_result_front.value) > 0:
+                    print("Yaayy pick result")
                     _intersection = self.scooter_groundFollowing.mf_pick_result_front.value[0].WorldPosition.value ## get the pick result to the front
                     _scooter_world_x = self.scooter_trans.Transform.value.get_translate().x
                     _scooter_world_z = self.scooter_trans.Transform.value.get_translate().z
-                    _inter_diff = math.sqrt(math.pow((_scooter_world_x - _intersection.x), 2) + math.pow((_scooter_world_z - _intersection.z), 2)) 
-                    print("go backwards", _inter_diff)
-                    self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0, -_inter_diff/2)
+                    _inter_diff = math.sqrt(math.pow((_scooter_world_x - _intersection.x), 2) + math.pow((_scooter_world_z - _intersection.z), 2)) * 0.75
+                    #print("go backwards", _inter_diff)
+                    #_inter_diff = self.scooter_groundFollowing.get_distance()
+                    if _inter_diff <= 10 or _inter_diff >= -10: 
+                        print("pick result and threshold is fine")
+                        self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0, -_inter_diff * 1.25)
+                    else:
+                        print("pick result but threshold is not fine")
+                        self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,-0.75)
+                else:
+                    ##no pick result
+                    print("no pick result but wall hit :(")
+                    self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,-0.75)
                 self.scooter_trans.Transform.value *= avango.gua.make_rot_mat(180, 0, 1, 0)
                 self.scooter_velocity = 0.0
+        else:
+            print("Oh no! How could this happen? :O")
+            print("velocity: ", self.velocity)
+            self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,1)
+            self.scooter_velocity = 0.0
+
 
     @field_has_changed(trans_mat)
     def trans_mat_changed(self):
