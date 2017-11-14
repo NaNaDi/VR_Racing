@@ -48,18 +48,28 @@ class Server(avango.script.Script):
         self.velocity = 0.0
         self.scooter_velocity = 0.0
 
+        self.scooter_first = False
+        self.scooter_second = False
+
+        self.skate_first = False
+        self.skate_second = False
+
+        self.scooter_mode = 0 # 0 = start; 1 = first half; 2 = second half; 3 = finish
+        self.skate_mode = 0
+
         #self.rotation_offset = avango.gua.make_rot_mat(90,0,1,0)
 
         ## init server viewing setup
         self.serverViewingSetup = SimpleViewingSetup(
             SCENEGRAPH = self.scenegraph,
             WINDOW_RESOLUTION = avango.gua.Vec2ui(1200, 1200),
-            SCREEN_DIMENSIONS = avango.gua.Vec2(10.0, 10.0),
+            SCREEN_DIMENSIONS = avango.gua.Vec2(100.0, 120.0),
             NAVIGATION_MATRIX = \
                 avango.gua.make_trans_mat(0.0,30.0,0.0) * \
                 avango.gua.make_rot_mat(90.0,-1,0,0),
             PROJECTION_MODE = avango.gua.ProjectionMode.ORTHOGRAPHIC,
             )
+        #self.serverViewingSetup.camera_node.Transform.value *= avango.gua.make_trans_mat(30, 0, 0)
 
 
         ## init distribution 
@@ -85,6 +95,7 @@ class Server(avango.script.Script):
 
         ## init scene
         self.scene = Scene(PARENT_NODE = self.nettrans)
+        self.finish_position = self.scene.finish_line.WorldTransform.value.get_translate().x
         #_loader = avango.gua.nodes.TriMeshLoader()
         #self.box_trans = avango.gua.nodes.TransformNode()
         #self.box_geometry = _loader.create_geometry_from_file("box_geometry", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
@@ -138,6 +149,20 @@ class Server(avango.script.Script):
         ## start application/render loop
         self.serverViewingSetup.run(locals(), globals())
 
+    def detect_finish(self, _finish_position, _object_position, _mode):
+        if _object_position < _finish_position:
+            if _mode == 0:
+                _mode = 1
+            elif _mode == 2:
+                _mode = 3
+        if _object_position > _finish_position:
+            if _mode == 1:
+                _mode = 2
+        print("mode: ", _mode)
+        return _mode
+        
+
+
     def evaluate(self):
         leg_pos = self.leg_sensor.Matrix.value.get_translate().z
         scooter_leg_pos = self.scooter_leg_sensor.Matrix.value.get_translate().z
@@ -161,7 +186,7 @@ class Server(avango.script.Script):
                 self.velocity += self.old_leg_pos
                 self.old_leg_pos=0.0
             if self.velocity < 0.0:
-                self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.velocity*0.3)
+                self.skate_trans.Transform.value *= avango.gua.make_trans_mat(0,0,self.velocity*0.1)
                 self.velocity += 0.0000005
             else:
                 self.velocity = 0.0
@@ -178,16 +203,16 @@ class Server(avango.script.Script):
             #print("inter_diff: ", _inter_diff)
             #_inter_diff = _intersection.z - self.scooter_trans.Transform.value.get_translate().z
             #_inter_diff = self.scooter_groundFollowing.get_distance()
-            print("inter_diff", _inter_diff)
-            print("velocity", self.velocity)
+            #print("inter_diff", _inter_diff)
+            #print("velocity", self.velocity)
             if (_inter_diff - self.velocity) <= 0 and self.velocity > 0:
-                print("velocity is greater than inter_diff")
+                #print("velocity is greater than inter_diff")
                 self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,_inter_diff * -1)
                 self.scooter_velocity = 0.0
             if self.scooter_groundFollowing.get_hit_wall() == False:
-                print("no wall hit")
+                #print("no wall hit")
                 if _inter_diff <= 15 or _inter_diff >= -15:
-                    print("inter diff below threshold") 
+                    #print("inter diff below threshold") 
                     #self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0, -_inter_diff * 1.25)
                     if scooter_leg_pos<self.scooter_old_leg_pos:
                         self.scooter_old_leg_pos=scooter_leg_pos
@@ -200,16 +225,16 @@ class Server(avango.script.Script):
                     else:
                         self.scooter_velocity = 0.0
                 else:
-                    print("inter diff above threshold")
+                    #print("inter diff above threshold")
                     self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,0.75)
             else:
                 ##wall hit
-                print("oh no, we hit the wall")
+                #print("oh no, we hit the wall")
                 self.scooter_trans.Transform.value *= avango.gua.make_rot_mat(180, 0, 1, 0)
 
                 #print("backwards intersection")
                 if len(self.scooter_groundFollowing.mf_pick_result_front.value) > 0:
-                    print("Yaayy pick result")
+                    #print("Yaayy pick result")
                     _intersection = self.scooter_groundFollowing.mf_pick_result_front.value[0].WorldPosition.value ## get the pick result to the front
                     _scooter_world_x = self.scooter_trans.Transform.value.get_translate().x
                     _scooter_world_z = self.scooter_trans.Transform.value.get_translate().z
@@ -217,22 +242,34 @@ class Server(avango.script.Script):
                     #print("go backwards", _inter_diff)
                     #_inter_diff = self.scooter_groundFollowing.get_distance()
                     if _inter_diff <= 10 or _inter_diff >= -10: 
-                        print("pick result and threshold is fine")
+                        #print("pick result and threshold is fine")
                         self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0, -_inter_diff * 1.25)
                     else:
-                        print("pick result but threshold is not fine")
+                        #print("pick result but threshold is not fine")
                         self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,-0.75)
                 else:
                     ##no pick result
-                    print("no pick result but wall hit :(")
+                    #print("no pick result but wall hit :(")
                     self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,-0.75)
                 self.scooter_trans.Transform.value *= avango.gua.make_rot_mat(180, 0, 1, 0)
                 self.scooter_velocity = 0.0
         else:
-            print("Oh no! How could this happen? :O")
-            print("velocity: ", self.velocity)
+            #print("Oh no! How could this happen? :O")
+            #print("velocity: ", self.velocity)
             self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0,0,1)
             self.scooter_velocity = 0.0
+
+        self.scooter_mode = self.detect_finish(self.finish_position, self.scooter_trans.WorldTransform.value.get_translate().x, self.scooter_mode)
+        self.skate_mode = self.detect_finish(self.finish_position, self.skate_trans.WorldTransform.value.get_translate().x, self.skate_mode)
+        _is_scooter_finish = False
+        if self.scooter_mode == 3:
+            _is_scooter_finish = True
+        if _is_scooter_finish:
+            if not self.skate_first:
+                self.scooter_first = True
+                print("##################Yuuuhuuuu!!!###########")
+            else:
+                print("------------------Buuuuuuuuuh!!!------------")
 
 
     @field_has_changed(trans_mat)
@@ -350,7 +387,8 @@ if __name__ == '__main__':
     #server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
     #server.my_constructor(SERVER_IP = "141.54.147.49") # minos
     #server.my_constructor(SERVER_IP = "141.54.147.57") #orestes
-    server.my_constructor(SERVER_IP = "141.54.147.45") #kronos
+    #server.my_constructor(SERVER_IP = "141.54.147.45") #kronos
     #server.my_constructor(SERVER_IP = "141.54.147.28") #artemis
+    server.my_constructor(SERVER_IP = "141.54.147.27") #arachne
 
 
