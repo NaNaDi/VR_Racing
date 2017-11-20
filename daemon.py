@@ -42,7 +42,7 @@ def init_dlp_wall_tracking():
   _dtrack.stations[32] = avango.daemon.Station('tracking-dlp-glasses-2_1')
   _dtrack.stations[33] = avango.daemon.Station('tracking-dlp-glasses-3_1')
 
-  _dtrack.stations[24] = avango.daemon.Station('scooter_pointer')
+  _dtrack.stations[27] = avango.daemon.Station('scooter_pointer')
   #_dtrack.stations[23] = avango.daemon.Station('scooter_leg_pointer')
   _dtrack.stations[14] = avango.daemon.Station('scooter_leg_pointer')
 

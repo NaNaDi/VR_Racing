@@ -42,6 +42,7 @@ class StereoViewingSetup:
         ## init window
         self.window = avango.gua.nodes.Window(Title = "window")
         self.window.Size.value = WINDOW_RESOLUTION
+        #self.window.Display.value = ":0.2" # 3rd GPU
 
         if LEFT_SCREEN_POSITION != None:
             self.window.LeftPosition.value = LEFT_SCREEN_POSITION

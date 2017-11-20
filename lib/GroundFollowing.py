@@ -52,7 +52,11 @@ class GroundFollowing(avango.script.Script):
 
         self.sf_mat.value = START_MATRIX
 
-        self.hit_wall = False
+        self.hit_wall_front = False
+        self.hit_wall_left = False
+        self.hit_wall_right = False
+
+        self.distance = 0.0
 
         ## init internal sub-classes
         self.gravity_intersection_down = Intersection()
@@ -70,8 +74,8 @@ class GroundFollowing(avango.script.Script):
         ## init field connections
         self.mf_pick_result_down.connect_from(self.gravity_intersection_down.mf_pick_result)
         self.mf_pick_result_front.connect_from(self.gravity_intersection_front.mf_pick_result)
-        #self.mf_pick_result_left.connect_from(self.gravity_intersection_left.mf_pick_result)
-        #self.mf_pick_result_right.connect_from(self.gravity_intersection_right.mf_pick_result)
+        self.mf_pick_result_left.connect_from(self.gravity_intersection_left.mf_pick_result)
+        self.mf_pick_result_right.connect_from(self.gravity_intersection_right.mf_pick_result)
         #self.mf_pick_result_up.connect_from(self.gravity_intersection_up.mf_pick_result)
 
         ## set initial state  
@@ -88,81 +92,99 @@ class GroundFollowing(avango.script.Script):
             ## compute gravity response
             _pick_result_down = self.mf_pick_result_down.value[0] # get first intersection target from list
             _world_pos = _pick_result_down.WorldPosition.value
-            _distance = (self.sf_mat.value.get_translate() - _world_pos).length()
-            _distance -= 0.2 # subtract half avatar height from distance
-            _distance -= self.fall_velocity
+            self.distance = (self.sf_mat.value.get_translate() - _world_pos).length()
+            self.distance -= 0.2 # subtract half avatar height from distance
+            self.distance -= self.fall_velocity
 
-            #print("down distance:",_distance)
-
-            if _distance > 0.01:
-                #_distance += 0.1 #add avatar height for hills
-                #if _distance < 0:
-                self.fall_vec.y = self.fall_velocity  * -1.0
-
-            else: # avatar (almost) on ground
-                self.fall_vec.y = 0.0
-
-            self.sf_modified_mat.value = \
-                avango.gua.make_trans_mat(self.fall_vec) * \
-                self.sf_mat.value
-        else: # no intersection found
-            #self.sf_modified_mat.value = self.sf_mat.value # no changes needed
-            self.sf_modified_mat.value = avango.gua.make_trans_mat(0,0,0) # no changes needed
-
-        if len(self.mf_pick_result_front.value) > 0:
-            _pick_result_front = self.mf_pick_result_front.value[0]
-            _world_pos = _pick_result_front.WorldPosition.value
-            _distance = (self.sf_mat.value.get_translate() - _world_pos).length()
-            _distance -= 0.2 # subtract half avatar height from distance
-            _distance -= self.fall_velocity
-
-            #print("front distance:",_distance)
-
-            if _distance < -0.01: # avatar above ground
-                self.hit_wall = True
+            if self.distance < -0.01: # avatar above ground
+                self.hit_wall_front = True
                 print("hit front")
                 #print("True")
 
             else: # avatar (almost) on ground
-                self.hit_wall = False
+                self.hit_wall_front = False
                 #print("False")
 
-        #if len(self.mf_pick_result_left.value) > 0:
-        #    _pick_result_left = self.mf_pick_result_left.value[0]
-        #    _world_pos = _pick_result_left.WorldPosition.value
-        #    _distance = (self.sf_mat.value.get_translate() - _world_pos).length()
-        #    _distance -= 0.2 # subtract half avatar height from distance
-        #    _distance -= self.fall_velocity
+            #print("down distance:",_distance)
+
+            #if self.distance > 0.01:
+            #    #_distance += 0.1 #add avatar height for hills
+            #    #if _distance < 0:
+            #    self.fall_vec.y = self.fall_velocity  * -1.0
+
+            #else: # avatar (almost) on ground
+            #    self.fall_vec.y = 0.0
+
+            #self.sf_modified_mat.value = \
+            #    avango.gua.make_trans_mat(self.fall_vec) * \
+            #    self.sf_mat.value
+        #else: # no intersection found
+        #    #self.sf_modified_mat.value = self.sf_mat.value # no changes needed
+        #    self.sf_modified_mat.value = avango.gua.make_trans_mat(0,0,0) # no changes needed
+
+        if len(self.mf_pick_result_front.value) > 0:
+            _pick_result_front = self.mf_pick_result_front.value[0]
+            _world_pos = _pick_result_front.WorldPosition.value
+            self.distance = (self.sf_mat.value.get_translate() - _world_pos).length()
+            self.distance -= 0.2 # subtract half avatar height from distance
+            self.distance -= self.fall_velocity
+
+            #print("front distance:",_distance)
+
+            if self.distance < -0.01: # avatar above ground
+                self.hit_wall_front = True
+                print("hit front")
+                #print("True")
+
+            else: # avatar (almost) on ground
+                self.hit_wall_front = False
+                #print("False")
+
+        if len(self.mf_pick_result_left.value) > 0:
+            _pick_result_left = self.mf_pick_result_left.value[0]
+            _world_pos = _pick_result_left.WorldPosition.value
+            _distance = (self.sf_mat.value.get_translate() - _world_pos).length()
+            _distance -= 0.2 # subtract half avatar height from distance
+            _distance -= self.fall_velocity
 
         #    #print("left distance:",_distance)
 
-        #    if _distance < -0.01: # avatar above ground
-        #        self.hit_wall = True
-        #        print("hit left")
+            if _distance < -0.01: # avatar above ground
+                self.hit_wall_left = True
+                print("hit left")
                 #print("True")
 #
-        #    else: # avatar (almost) on ground
-        #        self.hit_wall = False
+            else: # avatar (almost) on ground
+                self.hit_wall_left = False
                 #print("False")
 #
-        #if len(self.mf_pick_result_right.value) > 0:
-        #    _pick_result_right = self.mf_pick_result_right.value[0]
-        #    _world_pos = _pick_result_right.WorldPosition.value
-        #    _distance = (self.sf_mat.value.get_translate() - _world_pos).length()
-        #    _distance -= 0.2 # subtract half avatar height from distance
-        #    _distance -= self.fall_velocity
+        if len(self.mf_pick_result_right.value) > 0:
+            _pick_result_right = self.mf_pick_result_right.value[0]
+            _world_pos = _pick_result_right.WorldPosition.value
+            _distance = (self.sf_mat.value.get_translate() - _world_pos).length()
+            _distance -= 0.2 # subtract half avatar height from distance
+            _distance -= self.fall_velocity
 
         #    #print("left distance:",_distance)
 
-        #    if _distance < -0.01: # avatar above ground
-        #        self.hit_wall = True
-        #        print("hit right")
+            if _distance < -0.01: # avatar above ground
+                self.hit_wall_right = True
+                print("hit right")
         #        #print("True")
 #
-        #    else: # avatar (almost) on ground
-        #        self.hit_wall = False
+            else: # avatar (almost) on ground
+                self.hit_wall_right = False
         #        #print("False")
             
 
-    def get_hit_wall(self):
-        return self.hit_wall
+    def get_hit_wall_front(self):
+        return self.hit_wall_front
+
+    def get_hit_wall_left(self):
+        return self.hit_wall_left
+
+    def get_hit_wall_right(self):
+        return self.hit_wall_right
+
+    def get_distance(self):
+        return self.distance
