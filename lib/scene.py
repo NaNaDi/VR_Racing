@@ -42,7 +42,7 @@ class Scene:
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
         self.skate_parent = avango.gua.nodes.TransformNode(Name="skate_parent")
         self.skate_transform.Children.value = [self.skateboard]
-        self.skate_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(90.0,0,1,0)# * avango.gua.make_trans_mat(0,10,0)
+        self.skate_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(180.0,0,1,0)# * avango.gua.make_trans_mat(0,10,0)
         self.skate_parent.Children.value.append(self.skate_transform)
         PARENT_NODE.Children.value.append(self.skate_parent)
 
@@ -102,6 +102,11 @@ class Scene:
         #self.countdown_box_scooter.Transform.value = avango.gua.make_trans_mat(0,30,25) * avango.gua.make_scale_mat(30) * avango.gua.make_rot_mat(-45.0, 0.5, 0, 0)
         #self.countdown_box_scooter.Material.value.set_uniform("ColorMap", "data/textures/DH216SN.png")
         #self.scooter_transform.Children.value.append(self.countdown_box_scooter)
+
+        self.countdown_box_skate = loader.create_geometry_from_file("countdown_skate", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.countdown_box_skate.Transform.value = avango.gua.make_scale_mat(32) * avango.gua.make_trans_mat(-1, 0.75, 0)  * avango.gua.make_rot_mat(180, 1, 1, 0) * avango.gua.make_rot_mat(180, 1, 0, 0) * avango.gua.make_rot_mat(180, 0, 0, 1)
+        self.countdown_box_skate.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiiempty.png")
+        self.skate_transform.Children.value.append(self.countdown_box_skate)
 
     def getSkateboard(self):
         return self.skate_parent
