@@ -402,16 +402,19 @@ class Server(avango.script.Script):
                         print("time: ", self.timer.Time.value)
 
     def start_countdown(self):
-        if self.timer.Time.value <= 1:
-            self.scene.countdown_box_skate.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdown3.png")
-        elif self.timer.Time.value <= 2:
-            self.scene.countdown_box_skate.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdown2.png")
+        if self.timer.Time.value <= 2:
+            self.scene.countdown_box_skate3.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
         elif self.timer.Time.value <= 3:
-            self.scene.countdown_box_skate.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdown1.png")
+            self.scene.countdown_box_skate3.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+            self.scene.countdown_box_skate2.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
         elif self.timer.Time.value <= 4:
-            self.scene.countdown_box_skate.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdowngo.png")
+            self.scene.countdown_box_skate2.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+            self.scene.countdown_box_skate1.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
+        elif self.timer.Time.value <= 5:
+            self.scene.countdown_box_skate1.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+            self.scene.countdown_box_skatego.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
         else:
-            self.scene.countdown_box_skate.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiiempty.png")
+            self.scene.countdown_box_skatego.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
 
 
     @field_has_changed(trans_mat)
