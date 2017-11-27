@@ -71,3 +71,18 @@ class Intersection(avango.script.Script):
         _pick_result = self.SCENEGRAPH.ray_test(self.ray, self.pick_options, self.white_list, self.black_list)
         self.mf_pick_result.value = _pick_result.value
 
+    
+    def check_next_position(self, position):
+        self.ray.Origin.value = position
+        self.ray.Direction.value = self.pick_direction ##adjust direction
+
+        _pick_result = self.SCENEGRAPH.ray_test(self.ray, self.pick_options, self.white_list, self.black_list)
+        print(len(_pick_result.value))
+        if len(_pick_result.value)>0:
+            for _result in _pick_result.value:
+                print(_result.Object.value.Name.value)
+            if _pick_result.value[0].Object.value.Name.value == 'street':
+                return True
+
+        return False
+

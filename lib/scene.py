@@ -89,14 +89,20 @@ class Scene:
         self.landscape.Transform.value = avango.gua.make_trans_mat(-8.0,-21.00,22.0)
         PARENT_NODE.Children.value.append(self.landscape)
 
+        #### hack
+        self.landscape.Children.value[0].Name.value = 'street'
+        self.landscape.Children.value[1].Name.value = 'meadow'
+        self.landscape.Children.value[0].Tags.value = ['STREET_TO_PICK']
+        ####
+
         self.senpai = loader.create_geometry_from_file("kawaii_senpai", "data/Senpiiix3/Senpi.obj", avango.gua.LoaderFlags.DEFAULTS)
         self.senpai.Transform.value = avango.gua.make_trans_mat(-2,-0.25,1.25) * avango.gua.make_rot_mat(85,0,1,0) *  avango.gua.make_scale_mat(0.25)
         PARENT_NODE.Children.value.append(self.senpai)
 
-        self.collision_shape = loader.create_geometry_from_file("kawaii_collision_shape", "data/Racetrack/Collision_Shape.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS | avango.gua.LoaderFlags.MAKE_PICKABLE)
-        self.collision_shape.Transform.value = avango.gua.make_trans_mat(-8.0,-20.25,22.0)
-        self.collision_shape.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0.5))
-        PARENT_NODE.Children.value.append(self.collision_shape)
+        #self.collision_shape = loader.create_geometry_from_file("kawaii_collision_shape", "data/Racetrack/Collision_Shape.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS | avango.gua.LoaderFlags.MAKE_PICKABLE)
+        #self.collision_shape.Transform.value = avango.gua.make_trans_mat(-8.0,-20.25,22.0)
+        #self.collision_shape.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0.5))
+        #PARENT_NODE.Children.value.append(self.collision_shape)
 
         #self.countdown_box_scooter = loader.create_geometry_from_file("countdown_scooter", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
         #self.countdown_box_scooter.Transform.value = avango.gua.make_trans_mat(0,30,25) * avango.gua.make_scale_mat(30) * avango.gua.make_rot_mat(-45.0, 0.5, 0, 0)

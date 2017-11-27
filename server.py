@@ -18,10 +18,11 @@ import math
 
 class Server(avango.script.Script):
 
-    trans_mat = avango.avango.gua.SFMatrix4()
+    skate_trans_mat = avango.avango.gua.SFMatrix4()
     scooter_trans_mat = avango.avango.gua.SFMatrix4()
     ground_following_vertical_mat = avango.avango.gua.SFMatrix4()
     scooter_ground_following_vertical_mat = avango.avango.gua.SFMatrix4()
+    sf_skate_mat = avango.avango.gua.SFMatrix4()
     #TimeIn = avango.SFFloat()
 
     def __init__(self):
@@ -39,7 +40,7 @@ class Server(avango.script.Script):
 
         self.old_rotation = avango.gua.Quat()
         self.scooter_old_rotation = avango.gua.Quat()
-        self.old_leg_pos = 0.0
+        self.skate_old_leg_pos = 0.0
         self.scooter_old_leg_pos = 0.0
 
         #self.navigation = Navigation()
@@ -118,7 +119,7 @@ class Server(avango.script.Script):
         #self.skate_trans = self.scene.getSkateboard()
         #self.skate_trans = avango.gua.nodes.TransformNode()
         self.skate_trans = self.scene.getSkateboard()
-        self.trans_mat.connect_from(self.board_sensor.Matrix)
+        self.skate_trans_mat.connect_from(self.board_sensor.Matrix)
         self.groundFollowing = GroundFollowing()
         #print(self.skate_trans.Transform.value.get_translate())
         self.groundFollowing.my_constructor(SCENEGRAPH = self.scenegraph, START_MATRIX = avango.gua.make_trans_mat(self.skate_trans.Transform.value.get_translate()))
@@ -132,6 +133,9 @@ class Server(avango.script.Script):
         self.scooter_groundFollowing.my_constructor(SCENEGRAPH = self.scenegraph, START_MATRIX = avango.gua.make_trans_mat(self.scooter_trans.Transform.value.get_translate()))
         self.scooter_ground_following_vertical_mat.connect_from(self.scooter_groundFollowing.sf_modified_mat)
 
+        self.sf_skate_mat.value = avango.gua.make_trans_mat(self.scooter_trans.Transform.value.get_translate())
+        self.intersection = Intersection()
+        self.intersection.my_constructor(self.scenegraph, self.sf_skate_mat, 100, avango.gua.Vec3(0.0,-1.0,0.0))
 
         self.timer = avango.nodes.TimeSensor()
 
@@ -171,6 +175,7 @@ class Server(avango.script.Script):
         #print("mode: ", _mode)
         return _mode
 
+    '''
     def is_on_track(self, _object, _intersection_world_y):
         #print("diff:", _object.WorldTransform.value.get_translate().y - _intersection_world_y)
         if (_object.WorldTransform.value.get_translate().y - _intersection_world_y) < 2.5:
@@ -185,9 +190,44 @@ class Server(avango.script.Script):
             self.velocity = 0.0
             _object.Transform.value = self.scooter_old_position
             return False
+    '''
+
+    def move(self, _current_position, _next_position):
+        '''
+        checks next position and andjusts it if necessary
+        '''
+        print(self.intersection.check_next_position(_next_position.get_translate()))
+        if self.intersection.check_next_position(_next_position.get_translate()):
+            return self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
+        else:
+            _diff = math.sqrt(math.pow((_current_position.value.get_translate().x - _next_position.get_translate().x), 2) + math.pow((_current_position.value.get_translate().x - _next_position.get_translate().x), 2)) * 0.75
+            _next_position *= avango.gua.make_trans_mat(0, 0, _diff * -0.5)
+            return self.move(_current_position, _next_position)
+
+
 
     def evaluate(self):
         self.start_countdown()
+
+        ##kawaii skateboard
+        _skate_leg_pos = self.leg_sensor.Matrix.value.get_translate().z
+        if _skate_leg_pos<self.skate_old_leg_pos:
+            print("ausholen")
+            self.skate_old_leg_pos=_skate_leg_pos
+        if _skate_leg_pos<0.1 and _skate_leg_pos>-0.1  and self.skate_old_leg_pos != 0.0  and self.skate_old_leg_pos < -0.1:
+            print("nach hinten")
+            self.velocity += self.skate_old_leg_pos *-0.5
+            self.skate_old_leg_pos=0.0
+        if self.velocity > 0.0:
+            print("gehe nach vorne")
+            _next_position = self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
+            self.skate_trans.Transform.value = self.move(self.skate_trans.Transform, _next_position)
+            self.velocity -= 0.000005
+        else:
+            self.velocity = 0.0
+
+
+        '''
         #print("time: ", self.timer.Time.value)
         leg_pos = self.leg_sensor.Matrix.value.get_translate().z
         scooter_leg_pos = self.scooter_leg_sensor.Matrix.value.get_translate().z
@@ -374,32 +414,36 @@ class Server(avango.script.Script):
                 elif self.scooter_groundFollowing.get_hit_wall_left():
                     self.scooter_trans.Transform.value *= avango.gua.make_trans_mat(0.25,0,0)
                     self.scooter_velocity = 0.0
+        '''
+        self.get_winner()
 
+        
 
-                ## detect finish
-                self.scooter_mode = self.detect_finish(self.finish_position, self.scooter_trans.WorldTransform.value.get_translate().x, self.scooter_mode)
-                self.skate_mode = self.detect_finish(self.finish_position, self.skate_trans.WorldTransform.value.get_translate().x, self.skate_mode)
-                _is_scooter_finish = False
-                if self.scooter_mode == 3:
-                    _is_scooter_finish = True
-                if _is_scooter_finish:
-                    if not self.skate_first:
-                        self.scooter_first = True
-                        print("##################Yuuuhuuuu!!!###########")
-                        print("time: ", self.timer.Time.value)
-                    else:
-                        print("------------------Buuuuuuuuuh!!!------------")
-                        print("time: ", self.timer.Time.value)
-                _is_skate_finish = False
-                if self.skate_mode == 3:
-                    _is_skate_finish = True
-                if _is_skate_finish:
-                    if not self.scooter_first:
-                        print("##################Kawaii_Skate_Yuuuhuuuu!!!###########")
-                        print("time: ", self.timer.Time.value)
-                    else:
-                        print("------------------Kawaii_Skate_Buuuuuuuuuh!!!------------")
-                        print("time: ", self.timer.Time.value)
+    def get_winner(self):
+        ## detect finish
+        self.scooter_mode = self.detect_finish(self.finish_position, self.scooter_trans.WorldTransform.value.get_translate().x, self.scooter_mode)
+        self.skate_mode = self.detect_finish(self.finish_position, self.skate_trans.WorldTransform.value.get_translate().x, self.skate_mode)
+        _is_scooter_finish = False
+        if self.scooter_mode == 3:
+            _is_scooter_finish = True
+        if _is_scooter_finish:
+            if not self.skate_first:
+                self.scooter_first = True
+                print("##################Yuuuhuuuu!!!###########")
+                print("time: ", self.timer.Time.value)
+            else:
+                print("------------------Buuuuuuuuuh!!!------------")
+                print("time: ", self.timer.Time.value)
+        _is_skate_finish = False
+        if self.skate_mode == 3:
+            _is_skate_finish = True
+        if _is_skate_finish:
+            if not self.scooter_first:
+                print("##################Kawaii_Skate_Yuuuhuuuu!!!###########")
+                print("time: ", self.timer.Time.value)
+            else:
+                print("------------------Kawaii_Skate_Buuuuuuuuuh!!!------------")
+                print("time: ", self.timer.Time.value)
 
     def start_countdown(self):
         if self.timer.Time.value <= 2:
@@ -417,9 +461,9 @@ class Server(avango.script.Script):
             self.scene.countdown_box_skatego.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
 
 
-    @field_has_changed(trans_mat)
+    @field_has_changed(skate_trans_mat)
     def trans_mat_changed(self):
-        _rot = self.trans_mat.value.get_rotate()
+        _rot = self.skate_trans_mat.value.get_rotate()
         _rot_y = self.old_rotation.y
         _rot_z = self.old_rotation.z
         #_rot_z = avango.gua.make_rot_mat(self.old_rotation.z, 0, 0, 1)
@@ -532,8 +576,9 @@ if __name__ == '__main__':
     #server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
     #server.my_constructor(SERVER_IP = "141.54.147.49") # minos
     #server.my_constructor(SERVER_IP = "141.54.147.57") #orestes
-    server.my_constructor(SERVER_IP = "141.54.147.45") #kronos
+    #server.my_constructor(SERVER_IP = "141.54.147.45") #kronos
     #server.my_constructor(SERVER_IP = "141.54.147.28") #artemis
     #server.my_constructor(SERVER_IP = "141.54.147.27") #arachne
+    server.my_constructor(SERVER_IP = "141.54.147.29") #atalante
 
 
