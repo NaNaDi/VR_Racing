@@ -22,19 +22,20 @@ class Scene:
 
         ## init scene light
         self.scene_light = avango.gua.nodes.LightNode(Name = "scene_light")
-        self.scene_light.Type.value = avango.gua.LightType.POINT
+        self.scene_light.Type.value = avango.gua.LightType.SUN
         self.scene_light.Color.value = avango.gua.Color(0.9, 0.9, 0.9)
-        self.scene_light.Brightness.value =70.0
+        self.scene_light.Brightness.value =5.0
         self.scene_light.Falloff.value = 1.0 # exponent
         self.scene_light.EnableShadows.value = True
-        self.scene_light.ShadowMapSize.value = 1024
-        self.scene_light.Transform.value = \
-            avango.gua.make_trans_mat(0.0, 3.0, 1.0) * \
-            avango.gua.make_scale_mat(10.0)
+        #self.scene_light.ShadowMapSize.value = 1024
+        #self.scene_light.Transform.value = \
+        #    avango.gua.make_trans_mat(0.0, 15.0, 30.0) * \
+        #    avango.gua.make_scale_mat(80.0)
         self.scene_light.ShadowNearClippingInSunDirection.value = 0.1
         #self.scene_light.ShadowFarClippingInSunDirection.value = 10.0
         self.scene_light.ShadowMaxDistance.value = 10.0 # maximal distance, the shadow is visible
         PARENT_NODE.Children.value.append(self.scene_light)
+
         loader = avango.gua.nodes.TriMeshLoader()
 
         self.skate_transform = avango.gua.nodes.TransformNode(Name="skate_transform")
@@ -42,7 +43,7 @@ class Scene:
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
         self.skate_parent = avango.gua.nodes.TransformNode(Name="skate_parent")
         self.skate_transform.Children.value = [self.skateboard]
-        self.skate_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(90.0,0,1,0)# * avango.gua.make_trans_mat(0,10,0)
+        self.skate_transform.Transform.value = avango.gua.make_trans_mat(0,-0.3,0) * avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(90.0,0,1,0)
         self.skate_parent.Children.value.append(self.skate_transform)
         PARENT_NODE.Children.value.append(self.skate_parent)
 
@@ -132,6 +133,18 @@ class Scene:
         self.countdown_box_skatego.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdowngo.png")
         self.countdown_box_skatego.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
         self.skate_transform.Children.value.append(self.countdown_box_skatego)
+
+        self.countdown_box_skatewin = loader.create_geometry_from_file("countdown_skate", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.countdown_box_skatewin.Transform.value = avango.gua.make_scale_mat(32) * avango.gua.make_trans_mat(-1, 0.75, 0)  * avango.gua.make_rot_mat(180, 1, 1, 0) * avango.gua.make_rot_mat(180, 1, 0, 0) * avango.gua.make_rot_mat(180, 0, 0, 1)
+        self.countdown_box_skatewin.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdownWIN.png")
+        self.countdown_box_skatewin.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+        self.skate_transform.Children.value.append(self.countdown_box_skatewin)
+
+        self.countdown_box_skateloose = loader.create_geometry_from_file("countdown_skate", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.countdown_box_skateloose.Transform.value = avango.gua.make_scale_mat(32) * avango.gua.make_trans_mat(-1, 0.75, 0)  * avango.gua.make_rot_mat(180, 1, 1, 0) * avango.gua.make_rot_mat(180, 1, 0, 0) * avango.gua.make_rot_mat(180, 0, 0, 1)
+        self.countdown_box_skateloose.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdownLOOSER.png")
+        self.countdown_box_skateloose.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+        self.skate_transform.Children.value.append(self.countdown_box_skateloose)
 
     def getSkateboard(self):
         return self.skate_parent

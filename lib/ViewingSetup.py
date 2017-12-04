@@ -84,20 +84,6 @@ class StereoViewingSetup:
         self.viewer.Windows.value = [self.window]
         self.viewer.DesiredFPS.value = 60.0 # in Hz
 
-        ## init scene light
-        self.scene_light = avango.gua.nodes.LightNode(Name = "scene_light", Type = avango.gua.LightType.POINT)
-        self.scene_light.Color.value = avango.gua.Color(0.9, 0.9, 0.9)
-        self.scene_light.Brightness.value = 15.0
-        self.scene_light.Falloff.value = 1.0 # exponent
-        self.scene_light.EnableShadows.value = True
-        self.scene_light.ShadowMapSize.value = 1024
-        self.scene_light.Transform.value = \
-            avango.gua.make_trans_mat(0.0, 0.5, 0.0) * \
-            avango.gua.make_rot_mat(-90.0, 1, 0, 0) * \
-            avango.gua.make_scale_mat(1.0)
-        self.scene_light.ShadowNearClippingInSunDirection.value = 0.1
-        SCENEGRAPH.Root.value.Children.value.append(self.scene_light)
-
 
         ## init passes & render pipeline description
         self.resolve_pass = avango.gua.nodes.ResolvePassDescription()
@@ -164,7 +150,21 @@ class StereoViewingSetup:
         self.camera_node.OutputWindowName.value = self.window.Title.value
         self.camera_node.BlackList.value = ["invisible"]
         self.camera_node.PipelineDescription.value = self.pipeline_description
-        self.head_node.Children.value = [self.camera_node]
+        self.head_node.Children.value.append(self.camera_node)
+
+        ## init scene light
+        self.scene_light = avango.gua.nodes.LightNode(Name = "scene_light")
+        self.scene_light.Color.value = avango.gua.Color(0.9, 0.9, 0.9)
+        self.scene_light.Brightness.value = 15.0
+        self.scene_light.Falloff.value = 1.0 # exponent
+        self.scene_light.EnableShadows.value = True
+        self.scene_light.ShadowMapSize.value = 1024
+        #self.scene_light.Transform.value = \
+        #    avango.gua.make_trans_mat(0.0, 0.5, 0.0) * \
+        #    avango.gua.make_rot_mat(-90.0, 1, 0, 0) * \
+        #    avango.gua.make_scale_mat(1.0)
+        self.scene_light.ShadowNearClippingInSunDirection.value = 0.1
+        self.camera_node.Children.value.append(self.scene_light)
 
         ## pre-render camera setup for portal
         

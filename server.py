@@ -198,22 +198,28 @@ class Server(avango.script.Script):
         ''' 
         print("next position translate", _next_position.get_translate())
         print("current position translate", _current_position.value.get_translate())
-        if _current_position.value.get_translate() == _next_position.get_translate():
-            _next_position *= avango.gua.make_trans_mat(0, 0, 0.25)
+
+        _diff = math.sqrt(math.pow((_current_position.value.get_translate().x - _next_position.get_translate().x), 2) + math.pow((_current_position.value.get_translate().z - _next_position.get_translate().z), 2))
+        print("_diff: ", _diff)
+
+        ## _diff too small
+        if(_diff >=-0.0000005 and _diff <= 0.0000005):
+            _next_position *= avango.gua.make_trans_mat(0, 0, 0.5)
             self.velocity = 0.0
             return self.move(_current_position, _next_position)
-        if self.intersection.check_next_position(_next_position.get_translate()):
-            return self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
         else:
-            _diff = math.sqrt(math.pow((_current_position.value.get_translate().x - _next_position.get_translate().x), 2) + math.pow((_current_position.value.get_translate().z - _next_position.get_translate().z), 2))
-            print("_diff: ", _diff)
-            if(_diff >=-0.0000005 and _diff <= 0.0000005):
-                _next_position *= avango.gua.make_trans_mat(0, 0, _diff * 0.5)
-                return self.move(_current_position, _next_position)
+            ##is position valid
+            if self.intersection.check_next_position(_next_position.get_translate()):
+                return self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
             else:
-                _next_position *= avango.gua.make_trans_mat(0, 0, 0.25)
+                ## position not valid
+                _next_position *= avango.gua.make_trans_mat(0, 0, 0.5)
                 self.velocity = 0.0
                 return self.move(_current_position, _next_position)
+
+        
+        
+        
 
 
 
@@ -453,9 +459,11 @@ class Server(avango.script.Script):
             if not self.scooter_first:
                 print("##################Kawaii_Skate_Yuuuhuuuu!!!###########")
                 print("time: ", self.timer.Time.value)
+                self.scene.countdown_box_skatewin.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
             else:
                 print("------------------Kawaii_Skate_Buuuuuuuuuh!!!------------")
                 print("time: ", self.timer.Time.value)
+                self.scene.countdown_box_skateloose.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
 
     def start_countdown(self):
         if self.timer.Time.value <= 2:
