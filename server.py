@@ -195,14 +195,25 @@ class Server(avango.script.Script):
     def move(self, _current_position, _next_position):
         '''
         checks next position and andjusts it if necessary
-        '''
-        print(self.intersection.check_next_position(_next_position.get_translate()))
+        ''' 
+        print("next position translate", _next_position.get_translate())
+        print("current position translate", _current_position.value.get_translate())
+        if _current_position.value.get_translate() == _next_position.get_translate():
+            _next_position *= avango.gua.make_trans_mat(0, 0, 0.25)
+            self.velocity = 0.0
+            return self.move(_current_position, _next_position)
         if self.intersection.check_next_position(_next_position.get_translate()):
             return self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
         else:
-            _diff = math.sqrt(math.pow((_current_position.value.get_translate().x - _next_position.get_translate().x), 2) + math.pow((_current_position.value.get_translate().x - _next_position.get_translate().x), 2)) * 0.75
-            _next_position *= avango.gua.make_trans_mat(0, 0, _diff * -0.5)
-            return self.move(_current_position, _next_position)
+            _diff = math.sqrt(math.pow((_current_position.value.get_translate().x - _next_position.get_translate().x), 2) + math.pow((_current_position.value.get_translate().z - _next_position.get_translate().z), 2))
+            print("_diff: ", _diff)
+            if(_diff >=-0.0000005 and _diff <= 0.0000005):
+                _next_position *= avango.gua.make_trans_mat(0, 0, _diff * 0.5)
+                return self.move(_current_position, _next_position)
+            else:
+                _next_position *= avango.gua.make_trans_mat(0, 0, 0.25)
+                self.velocity = 0.0
+                return self.move(_current_position, _next_position)
 
 
 
@@ -221,6 +232,7 @@ class Server(avango.script.Script):
         if self.velocity > 0.0:
             print("gehe nach vorne")
             _next_position = self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
+            print("velocity: ", self.velocity)
             self.skate_trans.Transform.value = self.move(self.skate_trans.Transform, _next_position)
             self.velocity -= 0.000005
         else:
@@ -576,9 +588,9 @@ if __name__ == '__main__':
     #server.my_constructor(SERVER_IP = "141.54.147.32") # boreas
     #server.my_constructor(SERVER_IP = "141.54.147.49") # minos
     #server.my_constructor(SERVER_IP = "141.54.147.57") #orestes
-    #server.my_constructor(SERVER_IP = "141.54.147.45") #kronos
+    server.my_constructor(SERVER_IP = "141.54.147.45") #kronos
     #server.my_constructor(SERVER_IP = "141.54.147.28") #artemis
     #server.my_constructor(SERVER_IP = "141.54.147.27") #arachne
-    server.my_constructor(SERVER_IP = "141.54.147.29") #atalante
+    #server.my_constructor(SERVER_IP = "141.54.147.29") #atalante
 
 
