@@ -40,12 +40,13 @@ class Scene:
 
         self.skate_transform = avango.gua.nodes.TransformNode(Name="skate_transform")
         self.skateboard = loader.create_geometry_from_file("kawaii_skateboard", "data/skateboard/kawaii_skateboard.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.skateboard.Transform.value = avango.gua.make_rot_mat(180.0,0,1,0) * avango.gua.make_scale_mat(0.05)
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
-        self.skate_parent = avango.gua.nodes.TransformNode(Name="skate_parent")
+        #self.skate_parent = avango.gua.nodes.TransformNode(Name="skate_parent")
         self.skate_transform.Children.value = [self.skateboard]
-        self.skate_transform.Transform.value = avango.gua.make_trans_mat(0,-0.3,0) * avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(90.0,0,1,0)
-        self.skate_parent.Children.value.append(self.skate_transform)
-        PARENT_NODE.Children.value.append(self.skate_parent)
+        self.skate_transform.Transform.value = avango.gua.make_trans_mat(0,-0.25,0)# * avango.gua.make_rot_mat(90, 0, 1, 0)# * avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(180.0,0,1,0)
+        #self.skate_parent.Children.value.append(self.skate_transform)
+        PARENT_NODE.Children.value.append(self.skate_transform)
 
         for _node in self.skateboard.Children.value:
             _node.Material.value.set_uniform("Emissivity", 0.20) # 20% self-lighting
@@ -54,12 +55,14 @@ class Scene:
 
         self.scooter_transform = avango.gua.nodes.TransformNode(Name="scooter_transform")
         self.scooter = loader.create_geometry_from_file("kawaii_scooter", "data/kawaii_scooter/scooter_super.obj", avango.gua.LoaderFlags.DEFAULTS)
+
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
-        self.scooter_parent = avango.gua.nodes.TransformNode(Name="scooter_parent")
+        #self.scooter_parent = avango.gua.nodes.TransformNode(Name="scooter_parent")
         self.scooter_transform.Children.value = [self.scooter]
+        ## todo: trans * rot * scale
         self.scooter_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(-45, 0, 1, 0) #  * avango.gua.make_trans_mat(-10,-35,-20)
-        self.scooter_parent.Children.value.append(self.scooter_transform)
-        PARENT_NODE.Children.value.append(self.scooter_parent)
+        #self.scooter_parent.Children.value.append(self.scooter_transform)
+        PARENT_NODE.Children.value.append(self.scooter_transform)
 
         for _node in self.scooter.Children.value:
             _node.Material.value.set_uniform("Emissivity", 0.20) # 20% self-lighting
@@ -86,7 +89,7 @@ class Scene:
         self.finish_line.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0.5))
         PARENT_NODE.Children.value.append(self.finish_line)
 
-        self.landscape = loader.create_geometry_from_file("kawaii_landscape", "data/Racetrack/Racetrack.obj", avango.gua.LoaderFlags.DEFAULTS  | avango.gua.LoaderFlags.LOAD_MATERIALS | avango.gua.LoaderFlags.MAKE_PICKABLE)
+        self.landscape = loader.create_geometry_from_file("kawaii_landscape", "data/Racetrack/Racetrack.obj", avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS | avango.gua.LoaderFlags.MAKE_PICKABLE)
         self.landscape.Transform.value = avango.gua.make_trans_mat(-8.0,-21.00,22.0)
         PARENT_NODE.Children.value.append(self.landscape)
 
@@ -94,6 +97,8 @@ class Scene:
         self.landscape.Children.value[0].Name.value = 'street'
         self.landscape.Children.value[1].Name.value = 'meadow'
         self.landscape.Children.value[0].Tags.value = ['STREET_TO_PICK']
+        #self.landscape.Children.value[1].Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
+        #self.landscape.Children.value[1].Material.value.set_uniform("ColorMap", "data/textures/grass.jpg")
         ####
 
         self.senpai = loader.create_geometry_from_file("kawaii_senpai", "data/Senpiiix3/Senpi.obj", avango.gua.LoaderFlags.DEFAULTS)
@@ -147,7 +152,7 @@ class Scene:
         self.skate_transform.Children.value.append(self.countdown_box_skateloose)
 
     def getSkateboard(self):
-        return self.skate_parent
+        return self.skate_transform
 
     def getScooter(self):
-        return self.scooter_parent
+        return self.scooter_transform

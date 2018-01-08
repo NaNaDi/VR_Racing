@@ -48,6 +48,14 @@ class Client(avango.script.Script):
         self.scenegraph.Root.value.Children.value.append(self.nettrans)
         self.navigation_node = avango.gua.nodes.TransformNode()
 
+        #self.light = avango.gua.nodes.LightNode(Name = "kawaii_light", Type = avango.gua.LightType.POINT)
+        #self.light.Color.value = avango.gua.Color(0.9, 0.9, 0.9)
+        #self.light.Brightness.value = 15.0
+        #self.light.Falloff.value = 1.0 # exponent
+        #self.light.EnableShadows.value = True
+        #self.light.ShadowMapSize.value = 1024
+        #self.scenegraph.Root.value.Children.value.append(self.light)
+
         if CLIENT_IP == "141.54.147.28": # artemis
             self.viewingSetup = SimpleViewingSetup(
                 SCENEGRAPH = self.scenegraph,
@@ -117,7 +125,7 @@ class Client(avango.script.Script):
                 STEREO_FLAG = True,
                 STEREO_MODE = avango.gua.StereoMode.SIDE_BY_SIDE,
                 HEADTRACKING_FLAG = True,
-                HEADTRACKING_STATION = "tracking-dlp-glasses-n_1",
+                HEADTRACKING_STATION = "tracking-dlp-glasses-3_1",
                 TRACKING_TRANSMITTER_OFFSET = avango.gua.make_trans_mat(0.0,0.045,0.0),
                 )
             self.navigation_node = self.viewingSetup.navigation_node             
@@ -180,18 +188,20 @@ class Client(avango.script.Script):
                 print(_child_node.Name.value)
 
             ## uncomment for skateboard client
-            #_skate_trans = self.nettrans.Children.value[1]
+            _skate_trans = self.nettrans.Children.value[1]
             #self.navigation_node.WorldTransform.connect_from(_skate_trans.WorldTransform)
+            self.nav_mat_adjust_input.connect_from(_skate_trans.WorldTransform)
 
-            _scooter_trans = self.nettrans.Children.value[2]
-            self.nav_mat_adjust_input.connect_from(_scooter_trans.WorldTransform)
+            #_scooter_trans = self.nettrans.Children.value[2]
+            #self.nav_mat_adjust_input.connect_from(_scooter_trans.WorldTransform)
                         
             print_graph(self.nettrans)
         
             self.init_trigger.Active.value = False # disable init callback
 
     def evaluate(self):
-        self.navigation_node.Transform.value = self.nav_mat_adjust_input.value * avango.gua.make_rot_mat(45.0, 0, 1, 0) * avango.gua.make_trans_mat(0, 0.25, 1.5) * avango.gua.make_rot_mat(-45.0, 0.5, 0, 0)
+        self.navigation_node.Transform.value = self.nav_mat_adjust_input.value  * avango.gua.make_rot_mat(-10.0, 0, 0, 1) * avango.gua.make_rot_mat(90, 0, 1, 0) * avango.gua.make_trans_mat(0, 1, 1.5)
+        #self.light.Transform.value = self.navigation_node.Transform.value
         #if self.navigation_node.Transform.value != self.old_nav_trans:
         #    self.navigation_node.Transform.value *= avango.gua.make_trans_mat(0,0,15) #avango.gua.make_rot_mat(90.0, 0, 1, 0)
         #    self.old_nav_trans = self.navigation_node.Transform.value
@@ -231,9 +241,14 @@ def print_fields(node, print_values = False):
 
 if __name__ == '__main__':
     client = Client()
-    #client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30") #boreas
+    client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.30") #boreas
     #client.my_constructor(SERVER_IP = "141.54.147.49", CLIENT_IP = "141.54.147.30") #minos
     #client.my_constructor(SERVER_IP = "141.54.147.57", CLIENT_IP = "141.54.147.30") # orestes
-    client.my_constructor(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.20") #kronos with dlp wall
+    #client.my_constructor(SERVER_IP = "141.54.147.28", CLIENT_IP = "141.54.147.30") # artemis
+    #client.my_constructor(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.30") #kronos
+    #client.my_constructor(SERVER_IP = "141.54.147.27", CLIENT_IP = "141.54.147.30") #arachne
+    #client.my_constructor(SERVER_IP = "141.54.147.29", CLIENT_IP = "141.54.147.30") #atalante
+    #client.my_constructor(SERVER_IP = "141.54.147.45", CLIENT_IP = "141.54.147.20") #kronos with dlp wall
     #client.my_constructor(SERVER_IP = "141.54.147.28", CLIENT_IP = "141.54.147.20") #artemis with dlp wall
     #client.my_constructor(SERVER_IP = "141.54.147.32", CLIENT_IP = "141.54.147.20") #boreas with dlp wall
+    #client.my_constructor(SERVER_IP = "141.54.147.27", CLIENT_IP = "141.54.147.20") #arachne with dlp wall

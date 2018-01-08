@@ -106,7 +106,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd ApMiku_clt_blk.png
+map_Kd /home/reyi8260/Desktop/ApMiku_clt_blk.png
 
 newmtl m5
 Ns 1.960784
