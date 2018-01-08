@@ -24,6 +24,9 @@ class Server(avango.script.Script):
     scooter_ground_following_vertical_mat = avango.avango.gua.SFMatrix4()
     sf_skate_mat = avango.avango.gua.SFMatrix4()
     #TimeIn = avango.SFFloat()
+    vehicle = 0 ## 0=skateboard; 1=scooter 
+    started = False
+
 
     def __init__(self):
         self.super(Server).__init__()
@@ -231,26 +234,27 @@ class Server(avango.script.Script):
         self.start_countdown()
         #print(self.skate_trans.WorldTransform.value.get_translate())
         ##kawaii skateboard
-        _skate_leg_pos = self.leg_sensor.Matrix.value.get_translate().z
-        if _skate_leg_pos<self.skate_old_leg_pos:
-            #print("ausholen")
-            self.skate_old_leg_pos=_skate_leg_pos
-        if _skate_leg_pos<0.1 and _skate_leg_pos>-0.1  and self.skate_old_leg_pos != 0.0  and self.skate_old_leg_pos < -0.1:
-            #print("nach hinten")
-            self.velocity += self.skate_old_leg_pos *-0.5
-            self.skate_old_leg_pos=0.0
-        if self.velocity > 0.0:
-            #print("gehe nach vorne")
-            _next_position = self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
-            #print("velocity: ", self.velocity)
-            self.skate_trans.Transform.value = self.move(self.skate_trans.Transform, _next_position)
-            self.velocity -= 0.000005
-        else:
-            self.velocity = 0.0
+        if self.started:
+            _skate_leg_pos = self.leg_sensor.Matrix.value.get_translate().z
+            if _skate_leg_pos<self.skate_old_leg_pos:
+                #print("ausholen")
+                self.skate_old_leg_pos=_skate_leg_pos
+            if _skate_leg_pos<0.1 and _skate_leg_pos>-0.1  and self.skate_old_leg_pos != 0.0  and self.skate_old_leg_pos < -0.1:
+                #print("nach hinten")
+                self.velocity += self.skate_old_leg_pos *-0.5
+                self.skate_old_leg_pos=0.0
+            if self.velocity > 0.0:
+                #print("gehe nach vorne")
+                _next_position = self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
+                #print("velocity: ", self.velocity)
+                self.skate_trans.Transform.value = self.move(self.skate_trans.Transform, _next_position)
+                self.velocity -= 0.000005
+            else:
+                self.velocity = 0.0
 
 
         
-        self.get_winner()
+            self.get_winner()
 
         
 
@@ -294,8 +298,11 @@ class Server(avango.script.Script):
         elif self.timer.Time.value <= 5:
             self.scene.countdown_box_skate1.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
             self.scene.countdown_box_skatego.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
+            self.started = True
         else:
             self.scene.countdown_box_skatego.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+            
+
 
 
     @field_has_changed(skate_trans_mat)
