@@ -304,7 +304,7 @@ class Server(avango.script.Script):
         _rot_y = self.old_rotation.y
         _rot_z = self.old_rotation.z
         self.skate_trans.Transform.value *= avango.gua.make_inverse_mat(avango.gua.make_rot_mat(_rot_z, 0, 1, 0))
-        self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z, 0, 1, 0)# * avango.gua.make_rot_mat(_rot.z, 0, 1, 0)# * avango.gua.make_rot_mat(_rot_y, 0, 1, 0)
+        self.skate_trans.Transform.value *= avango.gua.make_rot_mat(_rot.z * 20, 0, 1, 0)# * avango.gua.make_rot_mat(_rot.z, 0, 1, 0)# * avango.gua.make_rot_mat(_rot_y, 0, 1, 0)
         self.old_rotation = self.skate_trans.Transform.value.get_rotate()
 
     #@field_has_changed(ground_following_vertical_mat)
