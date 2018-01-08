@@ -200,7 +200,7 @@ class Client(avango.script.Script):
             self.init_trigger.Active.value = False # disable init callback
 
     def evaluate(self):
-        self.navigation_node.Transform.value = self.nav_mat_adjust_input.value * avango.gua.make_trans_mat(0, 1, 1.5)
+        self.navigation_node.Transform.value = self.nav_mat_adjust_input.value  * avango.gua.make_trans_mat(0, 1, 1.5)
         #self.light.Transform.value = self.navigation_node.Transform.value
         #if self.navigation_node.Transform.value != self.old_nav_trans:
         #    self.navigation_node.Transform.value *= avango.gua.make_trans_mat(0,0,15) #avango.gua.make_rot_mat(90.0, 0, 1, 0)
