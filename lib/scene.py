@@ -56,12 +56,13 @@ class Scene:
 
         self.scooter_transform = avango.gua.nodes.TransformNode(Name="scooter_transform")
         self.scooter = loader.create_geometry_from_file("kawaii_scooter", "data/kawaii_scooter/scooter_super.obj", avango.gua.LoaderFlags.DEFAULTS)
-
+        self.scooter.Transform.value = avango.gua.make_trans_mat(0,-0.2,0) * avango.gua.make_rot_mat(-90, 0, 1, 0) * avango.gua.make_scale_mat(0.05)
         #skateboard.Material.value.set_uniform("Color", avango.gua.Vec4(1.0,0.153,1.0,1.0))
         #self.scooter_parent = avango.gua.nodes.TransformNode(Name="scooter_parent")
         self.scooter_transform.Children.value = [self.scooter]
+        #self.scooter_transform.Transform.value *= avango.gua.make_trans_mat(0, 0, 0.5)
         ## todo: trans * rot * scale
-        self.scooter_transform.Transform.value = avango.gua.make_scale_mat(0.05) * avango.gua.make_rot_mat(-45, 0, 1, 0) #  * avango.gua.make_trans_mat(-10,-35,-20)
+        self.scooter_transform.Transform.value =  avango.gua.make_rot_mat(90, 0, 1, 0) #  * avango.gua.make_trans_mat(-10,-35,-20)
         #self.scooter_parent.Children.value.append(self.scooter_transform)
         PARENT_NODE.Children.value.append(self.scooter_transform)
 
@@ -116,6 +117,7 @@ class Scene:
         #self.countdown_box_scooter.Material.value.set_uniform("ColorMap", "data/textures/DH216SN.png")
         #self.scooter_transform.Children.value.append(self.countdown_box_scooter)
 
+        ##skate boxes
         self.countdown_box_skate3 = loader.create_geometry_from_file("countdown_skate", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
         self.countdown_box_skate3.Transform.value = avango.gua.make_trans_mat(0,0.75,0) * avango.gua.make_rot_mat(-90,0,0,1) * avango.gua.make_scale_mat(2)
         self.countdown_box_skate3.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdown3.png")
@@ -151,6 +153,43 @@ class Scene:
         self.countdown_box_skateloose.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdownLOOSER.png")
         self.countdown_box_skateloose.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
         self.skate_transform.Children.value.append(self.countdown_box_skateloose)
+
+        ##scooter boxes
+        self.countdown_box_scooter3 = loader.create_geometry_from_file("countdown_scooter", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.countdown_box_scooter3.Transform.value = avango.gua.make_trans_mat(0,0.75,0) * avango.gua.make_rot_mat(-90,0,0,1) * avango.gua.make_scale_mat(2)
+        self.countdown_box_scooter3.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdown3.png")
+        self.countdown_box_scooter3.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+        self.scooter_transform.Children.value.append(self.countdown_box_scooter3)
+
+        self.countdown_box_scooter2 = loader.create_geometry_from_file("countdown_scooter", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.countdown_box_scooter2.Transform.value =avango.gua.make_trans_mat(0,0.75,0) * avango.gua.make_rot_mat(-90,0,0,1) *avango.gua.make_scale_mat(2)
+        self.countdown_box_scooter2.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdown2.png")
+        self.countdown_box_scooter2.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+        self.scooter_transform.Children.value.append(self.countdown_box_scooter2)
+
+        self.countdown_box_scooter1 = loader.create_geometry_from_file("countdown_scooter", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.countdown_box_scooter1.Transform.value =avango.gua.make_trans_mat(0,0.75,0) * avango.gua.make_rot_mat(-90,0,0,1) *avango.gua.make_scale_mat(2)
+        self.countdown_box_scooter1.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdown1.png")
+        self.countdown_box_scooter1.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+        self.scooter_transform.Children.value.append(self.countdown_box_scooter1)
+
+        self.countdown_box_scootergo = loader.create_geometry_from_file("countdown_scooter", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.countdown_box_scootergo.Transform.value =avango.gua.make_trans_mat(0,0.75,0) * avango.gua.make_rot_mat(-90,0,0,1) *avango.gua.make_scale_mat(2)
+        self.countdown_box_scootergo.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdowngo.png")
+        self.countdown_box_scootergo.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+        self.scooter_transform.Children.value.append(self.countdown_box_scootergo)
+
+        self.countdown_box_scooterwin = loader.create_geometry_from_file("countdown_scooter", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.countdown_box_scooterwin.Transform.value =avango.gua.make_trans_mat(0,0.75,0) * avango.gua.make_rot_mat(-90,0,0,1) *avango.gua.make_scale_mat(2)
+        self.countdown_box_scooterwin.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdownWIN.png")
+        self.countdown_box_scooterwin.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+        self.scooter_transform.Children.value.append(self.countdown_box_scooterwin)
+
+        self.countdown_box_scooterloose = loader.create_geometry_from_file("countdown_scooter", "data/objects/cube.obj", avango.gua.LoaderFlags.DEFAULTS)
+        self.countdown_box_scooterloose.Transform.value =avango.gua.make_trans_mat(0,0.75,0) * avango.gua.make_rot_mat(-90,0,0,1) *avango.gua.make_scale_mat(2)
+        self.countdown_box_scooterloose.Material.value.set_uniform("ColorMap", "data/textures/countdown_textures/kawaiicountdownLOOSER.png")
+        self.countdown_box_scooterloose.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+        self.scooter_transform.Children.value.append(self.countdown_box_scooterloose)
 
     def getSkateboard(self):
         return self.skate_transform

@@ -11,6 +11,9 @@ LOCAL_AVANGO="$DIR/../../../avango"
 GUACAMOLE=/opt/guacamole/master
 AVANGO=/opt/avango/master
 
+# set display
+export DISPLAY=:0.0
+
 # third party libs
 export LD_LIBRARY_PATH=/opt/boost/boost_1_55_0/lib:/opt/zmq/current/lib:/opt/Awesomium/lib:/opt/pbr/inst_cb/lib
 

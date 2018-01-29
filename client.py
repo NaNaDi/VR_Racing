@@ -174,7 +174,7 @@ class Client(avango.script.Script):
         self.always_evaluate(True)
 
         while True:
-            self.viewingSetup.viewer.frame()
+           self.viewingSetup.viewer.frame()
         #self.viewingSetup.run(locals(), globals())
 
     
@@ -188,19 +188,27 @@ class Client(avango.script.Script):
                 print(_child_node.Name.value)
 
             ## uncomment for skateboard client
-            _skate_trans = self.nettrans.Children.value[1]
+            #_skate_trans = self.nettrans.Children.value[1]
             #self.navigation_node.WorldTransform.connect_from(_skate_trans.WorldTransform)
-            self.nav_mat_adjust_input.connect_from(_skate_trans.WorldTransform)
+            #self.nav_mat_adjust_input.connect_from(_skate_trans.WorldTransform)
 
-            #_scooter_trans = self.nettrans.Children.value[2]
-            #self.nav_mat_adjust_input.connect_from(_scooter_trans.WorldTransform)
+            _scooter_trans = self.nettrans.Children.value[2]
+            print("nettrans[2] name",self.nettrans.Children.value[2].Name.value)
+            self.nav_mat_adjust_input.connect_from(_scooter_trans.WorldTransform)
                         
             print_graph(self.nettrans)
         
             self.init_trigger.Active.value = False # disable init callback
 
     def evaluate(self):
+        ##skateboard
         self.navigation_node.Transform.value = self.nav_mat_adjust_input.value  * avango.gua.make_trans_mat(0, 1, 1.5)
+
+        ##scooter
+        #self.navigation_node.Transform.value = self.nav_mat_adjust_input.value  * avango.gua.make_trans_mat(0, 1, 1.5) * avango.gua.make_rot_mat(45, 0,1,0)
+        
+
+
         #self.light.Transform.value = self.navigation_node.Transform.value
         #if self.navigation_node.Transform.value != self.old_nav_trans:
         #    self.navigation_node.Transform.value *= avango.gua.make_trans_mat(0,0,15) #avango.gua.make_rot_mat(90.0, 0, 1, 0)

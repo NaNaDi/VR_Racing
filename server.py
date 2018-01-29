@@ -23,8 +23,9 @@ class Server(avango.script.Script):
     ground_following_vertical_mat = avango.avango.gua.SFMatrix4()
     scooter_ground_following_vertical_mat = avango.avango.gua.SFMatrix4()
     sf_skate_mat = avango.avango.gua.SFMatrix4()
+    sf_scooter_mat = avango.avango.gua.SFMatrix4()
     #TimeIn = avango.SFFloat()
-    vehicle = 0 ## 0=skateboard; 1=scooter 
+    vehicle = 1 ## 0=skateboard; 1=scooter 
     started = False
 
 
@@ -93,10 +94,10 @@ class Server(avango.script.Script):
         self.leg_sensor.Station.value = "tracking-lcd-prop-2"
 
         self.scooter_sensor = avango.daemon.nodes.DeviceSensor(DeviceService = avango.daemon.DeviceService())
-        self.scooter_sensor.Station.value = "scooter_pointer"
+        self.scooter_sensor.Station.value = "blue-pointer"
 
         self.scooter_leg_sensor = avango.daemon.nodes.DeviceSensor(DeviceService = avango.daemon.DeviceService())
-        self.scooter_leg_sensor.Station.value = "scooter_leg_pointer"
+        self.scooter_leg_sensor.Station.value = "canon-pointer"
 
         ## init scene
         self.scene = Scene(PARENT_NODE = self.nettrans)
@@ -136,9 +137,13 @@ class Server(avango.script.Script):
         self.scooter_groundFollowing.my_constructor(SCENEGRAPH = self.scenegraph, START_MATRIX = avango.gua.make_trans_mat(self.scooter_trans.Transform.value.get_translate()))
         self.scooter_ground_following_vertical_mat.connect_from(self.scooter_groundFollowing.sf_modified_mat)
 
-        self.sf_skate_mat.value = avango.gua.make_trans_mat(self.scooter_trans.Transform.value.get_translate())
-        self.intersection = Intersection()
-        self.intersection.my_constructor(self.scenegraph, self.sf_skate_mat, 100, avango.gua.Vec3(0.0,-1.0,0.0))
+        self.sf_skate_mat.value = avango.gua.make_trans_mat(self.skate_trans.Transform.value.get_translate())
+        self.skate_intersection = Intersection()
+        self.skate_intersection.my_constructor(self.scenegraph, self.sf_skate_mat, 100, avango.gua.Vec3(0.0,-1.0,0.0))
+
+        self.sf_scooter_mat.value = avango.gua.make_trans_mat(self.scooter_trans.Transform.value.get_translate())
+        self.scooter_intersection = Intersection()
+        self.scooter_intersection.my_constructor(self.scenegraph, self.sf_scooter_mat, 100, avango.gua.Vec3(0.0,-1.0,0.0))
 
         self.timer = avango.nodes.TimeSensor()
 
@@ -195,7 +200,7 @@ class Server(avango.script.Script):
             return False
     '''
 
-    def move(self, _current_position, _next_position):
+    def move(self, _current_position, _next_position, _intersection, _velocity):
         '''
         checks next position and andjusts it if necessary
         ''' 
@@ -209,21 +214,21 @@ class Server(avango.script.Script):
         if(_diff >=-0.0000005 and _diff <= 0.0000005):
             print("diff too small")
             _next_position *= avango.gua.make_trans_mat(0, 0, 0.5)
-            self.velocity = 0.0
-            return self.move(_current_position, _next_position)
+            _velocity = 0.0
+            return self.move(_current_position, _next_position, _intersection, _velocity)
         else:
             ##is position valid
-            if self.intersection.check_next_position(_next_position.get_translate()):
+            if _intersection.check_next_position(_next_position.get_translate()):
                 print("valid position")
-                return self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
+                return _current_position.value * avango.gua.make_trans_mat(0,0,_velocity*-0.3)
             else:
                 ## position not valid
                 print("position not valid")
                 print("movement factor: ", _next_position.get_translate().z *0.5)
                 _next_position *= avango.gua.make_trans_mat(0, 0, _diff *0.5)
                 print("next position: ", _next_position)
-                self.velocity = 0.0
-                return self.move(_current_position, _next_position)
+                _velocity = 0.0
+                return self.move(_current_position, _next_position, _intersection, _velocity)
         
         
         
@@ -233,27 +238,44 @@ class Server(avango.script.Script):
     def evaluate(self):
         self.start_countdown()
         #print(self.skate_trans.WorldTransform.value.get_translate())
-        ##kawaii skateboard
+        
         if self.started:
+            ##kawaii skateboard
             _skate_leg_pos = self.leg_sensor.Matrix.value.get_translate().z
             if _skate_leg_pos<self.skate_old_leg_pos:
                 #print("ausholen")
                 self.skate_old_leg_pos=_skate_leg_pos
             if _skate_leg_pos<0.1 and _skate_leg_pos>-0.1  and self.skate_old_leg_pos != 0.0  and self.skate_old_leg_pos < -0.1:
                 #print("nach hinten")
-                self.velocity += self.skate_old_leg_pos *-0.5
+                self.velocity += self.skate_old_leg_pos *-0.1
                 self.skate_old_leg_pos=0.0
             if self.velocity > 0.0:
                 #print("gehe nach vorne")
-                _next_position = self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
+                _skate_next_position = self.skate_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.velocity*-0.3)
                 #print("velocity: ", self.velocity)
-                self.skate_trans.Transform.value = self.move(self.skate_trans.Transform, _next_position)
+                self.skate_trans.Transform.value = self.move(self.skate_trans.Transform, _skate_next_position, self.skate_intersection, self.velocity)
                 self.velocity -= 0.000005
             else:
                 self.velocity = 0.0
-
-
         
+            ##kawaii scooter
+            _scooter_leg_pos = self.scooter_leg_sensor.Matrix.value.get_translate().z
+            if _scooter_leg_pos<self.scooter_old_leg_pos:
+                #print("ausholen")
+                self.scooter_old_leg_pos=_scooter_leg_pos
+            if _scooter_leg_pos<0.1 and _scooter_leg_pos>-0.1  and self.scooter_old_leg_pos != 0.0  and self.scooter_old_leg_pos < -0.1:
+                #print("nach hinten")
+                self.scooter_velocity += self.scooter_old_leg_pos *-0.1
+                self.scooter_old_leg_pos=0.0
+            if self.scooter_velocity > 0.0:
+                #print("gehe nach vorne")
+                _scooter_next_position = self.scooter_trans.Transform.value * avango.gua.make_trans_mat(0,0,self.scooter_velocity*-0.3)
+                #print("velocity: ", self.velocity)
+                self.scooter_trans.Transform.value = self.move(self.scooter_trans.Transform, _scooter_next_position, self.scooter_intersection, self.scooter_velocity)
+                self.scooter_velocity -= 0.000005
+            else:
+                self.scooter_velocity = 0.0
+            
             self.get_winner()
 
         
@@ -270,9 +292,12 @@ class Server(avango.script.Script):
                 self.scooter_first = True
                 print("##################Yuuuhuuuu!!!###########")
                 print("time: ", self.timer.Time.value)
+                self.scene.countdown_box_scooterwin.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
+                self.scene.countdown_box_skateloose.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
             else:
                 print("------------------Buuuuuuuuuh!!!------------")
                 print("time: ", self.timer.Time.value)
+                self.scene.countdown_box_scooterloose.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
         _is_skate_finish = False
         if self.skate_mode == 3:
             _is_skate_finish = True
@@ -281,6 +306,7 @@ class Server(avango.script.Script):
                 print("##################Kawaii_Skate_Yuuuhuuuu!!!###########")
                 print("time: ", self.timer.Time.value)
                 self.scene.countdown_box_skatewin.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
+                self.scene.countdown_box_scooterloose.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
             else:
                 print("------------------Kawaii_Skate_Buuuuuuuuuh!!!------------")
                 print("time: ", self.timer.Time.value)
@@ -289,18 +315,26 @@ class Server(avango.script.Script):
     def start_countdown(self):
         if self.timer.Time.value <= 2:
             self.scene.countdown_box_skate3.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
+            self.scene.countdown_box_scooter3.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
         elif self.timer.Time.value <= 3:
             self.scene.countdown_box_skate3.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
             self.scene.countdown_box_skate2.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
+            self.scene.countdown_box_scooter3.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+            self.scene.countdown_box_scooter2.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
         elif self.timer.Time.value <= 4:
             self.scene.countdown_box_skate2.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
             self.scene.countdown_box_skate1.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
+            self.scene.countdown_box_scooter2.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+            self.scene.countdown_box_scooter1.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
         elif self.timer.Time.value <= 5:
             self.scene.countdown_box_skate1.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
             self.scene.countdown_box_skatego.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
+            self.scene.countdown_box_scooter1.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+            self.scene.countdown_box_scootergo.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,1))
             self.started = True
         else:
             self.scene.countdown_box_skatego.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
+            self.scene.countdown_box_scootergo.Material.value.set_uniform("Color", avango.gua.Vec4(1,1,1,0))
             
 
 
