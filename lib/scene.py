@@ -62,7 +62,7 @@ class Scene:
         self.scooter_transform.Children.value = [self.scooter]
         #self.scooter_transform.Transform.value *= avango.gua.make_trans_mat(0, 0, 0.5)
         ## todo: trans * rot * scale
-        self.scooter_transform.Transform.value =  avango.gua.make_rot_mat(90, 0, 1, 0) #  * avango.gua.make_trans_mat(-10,-35,-20)
+        self.scooter_transform.Transform.value = avango.gua.make_trans_mat(0, 0,-0.5 ) * avango.gua.make_rot_mat(90, 0, 1, 0) #  * avango.gua.make_trans_mat(-10,-35,-20)
         #self.scooter_parent.Children.value.append(self.scooter_transform)
         PARENT_NODE.Children.value.append(self.scooter_transform)
 
